@@ -9,9 +9,9 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.simpletak</groupId>
-	<artifactId>takscheduler</artifactId>
+	<artifactId>tak-scheduler</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>takscheduler</name>
+	<name>tak-scheduler</name>
 	<description>Project for Spring course of NaUKMA</description>
 	<properties>
 		<java.version>11</java.version>
