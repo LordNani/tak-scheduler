@@ -5,9 +5,9 @@ on:
     types: [opened, labeled, unlabeled, synchronize]
 
 jobs:
-  triage:
+  label-verify:
     runs-on: ubuntu-18.04
     steps:
       - uses: zwaldowski/match-label-action@v2
         with:
-          allowed: 'type:fix, type:features, type:documentation, type:tests, type:config, type:cicd'
+          allowed_multiple: 'type:fix, type:features, type:documentation, type:tests, type:config, type:cicd'
