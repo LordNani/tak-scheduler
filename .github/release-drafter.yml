@@ -16,9 +16,14 @@ categories:
   - title: ' Configuration for Backend'
     labels:
       - 'type:config'
+
   - title: ' CI/CD'
     labels:
       - 'type:cicd'
+
+  - title: ' Testing'
+    labels:
+      - 'type:tests'
 
 change-template: '- $TITLE @$AUTHOR (#$NUMBER)'
 template: |
