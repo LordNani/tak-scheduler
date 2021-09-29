@@ -1,0 +1,31 @@
+name-template: 'v$NEXT_PATCH_VERSION'
+tag-template: 'v$NEXT_PATCH_VERSION'
+categories:
+  - title: ' New Features in Backend'
+    labels:
+      - 'type:features'
+
+  - title: ' Bugs Fixes in Backend'
+    labels:
+      - 'type:fix'
+
+  - title: ' Documentation for Backend'
+    labels:
+      - 'type:documentation'
+
+  - title: ' Configuration for Backend'
+    labels:
+      - 'type:config'
+
+  - title: ' CI/CD'
+    labels:
+      - 'type:cicd'
+
+  - title: ' Testing'
+    labels:
+      - 'type:tests'
+
+change-template: '- $TITLE @$AUTHOR (#$NUMBER)'
+template: |
+  ## Changes
+  $CHANGES
