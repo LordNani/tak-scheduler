@@ -1,4 +1,4 @@
-package com.simpletak.takscheduler.service.userService;
+package com.simpletak.takscheduler.service.user;
 
 import com.simpletak.takscheduler.dto.user.SignupUserDTO;
 import com.simpletak.takscheduler.model.user.UserEntity;
