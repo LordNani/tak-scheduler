@@ -1,4 +1,4 @@
-package com.simpletak.takscheduler.service;
+package com.simpletak.takscheduler.service.eventgroup;
 
 import com.simpletak.takscheduler.model.eventGroup.EventGroupEntity;
 import com.simpletak.takscheduler.repository.eventGroup.EventGroupRepository;
