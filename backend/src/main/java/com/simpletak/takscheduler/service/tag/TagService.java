@@ -26,7 +26,7 @@ public class TagService {
     }
 
     public TagResponseDTO createTag(TagRequestDTO tagRequestDTO){
-        if(tagRepository.existsByName(tagRequestDTO.getTagName())) throw new TagAlreadyExistsException();
+        if(tagRepository.existsByTagName(tagRequestDTO.getTagName())) throw new TagAlreadyExistsException();
 
         TagEntity tagEntity = TagEntity.builder()
                 .tagName(tagRequestDTO.getTagName())
