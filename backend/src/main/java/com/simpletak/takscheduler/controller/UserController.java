@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.UUID;
 
-@RequestMapping("api/users")
+@RequestMapping("/api/users")
 public class UserController {
     UserService userService;
 
