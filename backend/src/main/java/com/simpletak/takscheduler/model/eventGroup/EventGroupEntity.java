@@ -29,7 +29,7 @@ public class EventGroupEntity {
     private UUID id;
 
     @Column(name = "eventGroupName", length = 256, nullable = false)
-    private String eventName;
+    private String eventGroupName;
 
     @Column(name = "eventGroupDescription", length = 512)
     private String eventGroupDescription;

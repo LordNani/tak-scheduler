@@ -8,6 +8,7 @@ import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class UserService {
@@ -36,5 +37,9 @@ public class UserService {
 
             userRepository.saveAndFlush(userToSave);
         }
+    }
+
+    public UserEntity getUserById(UUID ownerId) {
+        return userRepository.getOne(ownerId);
     }
 }
