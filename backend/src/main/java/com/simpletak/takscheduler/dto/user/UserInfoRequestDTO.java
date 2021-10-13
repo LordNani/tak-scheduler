@@ -4,11 +4,13 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.NotNull;
+import java.util.UUID;
+
 @Data
+@AllArgsConstructor
 @NoArgsConstructor
-//@AllArgsConstructor
-public class SignupUserDTO {
-    private String fullName;
-    private String username;
-    private String password;
+public class UserInfoRequestDTO {
+    @NotNull
+    private UUID id;
 }
