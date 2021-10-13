@@ -13,10 +13,54 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<name>tak-scheduler</name>
 	<description>Project for Spring course of NaUKMA</description>
-	<properties>
-		<java.version>11</java.version>
-		<jjwt.version>0.9.1</jjwt.version>
-	</properties>
+
+	<profiles>
+
+		<profile>
+			<id>develop</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<properties>
+				<java.version>11</java.version>
+				<jjwt.version>0.9.1</jjwt.version>
+			</properties>
+			<dependencies>
+
+				<dependency>
+					<groupId>com.h2database</groupId>
+					<artifactId>h2</artifactId>
+					<scope>runtime</scope>
+				</dependency>
+
+				<dependency>
+					<groupId>io.rest-assured</groupId>
+					<artifactId>rest-assured</artifactId>
+				</dependency>
+
+			</dependencies>
+		</profile>
+
+
+		<profile>
+			<id>production</id>
+			<properties>
+				<java.version>11</java.version>
+				<jjwt.version>0.9.1</jjwt.version>
+			</properties>
+			<dependencies>
+
+				<dependency>
+					<groupId>org.postgresql</groupId>
+					<artifactId>postgresql</artifactId>
+					<scope>runtime</scope>
+				</dependency>
+
+			</dependencies>
+		</profile>
+
+	</profiles>
+
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -33,17 +77,6 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-security</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>com.h2database</groupId>
-			<artifactId>h2</artifactId>
-			<scope>runtime</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.postgresql</groupId>
-			<artifactId>postgresql</artifactId>
-			<scope>runtime</scope>
 		</dependency>
 
 		<dependency>
@@ -79,10 +112,7 @@
 			<artifactId>spring-security-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
-			<groupId>io.rest-assured</groupId>
-			<artifactId>rest-assured</artifactId>
-		</dependency>
+
 	</dependencies>
 
 	<build>
