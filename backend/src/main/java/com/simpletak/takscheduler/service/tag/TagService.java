@@ -5,13 +5,9 @@ import com.simpletak.takscheduler.dto.tag.TagResponseDTO;
 import com.simpletak.takscheduler.exception.tag.TagAlreadyExistsException;
 import com.simpletak.takscheduler.exception.tag.TagNotFoundException;
 import com.simpletak.takscheduler.model.tag.TagEntity;
-import com.simpletak.takscheduler.repository.eventGroup.EventGroupRepository;
 import com.simpletak.takscheduler.repository.tag.TagRepository;
-import com.simpletak.takscheduler.repository.user.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 import static java.util.Objects.isNull;
 
@@ -26,7 +22,7 @@ public class TagService {
     }
 
     public TagResponseDTO createTag(TagRequestDTO tagRequestDTO){
-        if(tagRepository.existsByName(tagRequestDTO.getTagName())) throw new TagAlreadyExistsException();
+        if(tagRepository.existsByTagName(tagRequestDTO.getTagName())) throw new TagAlreadyExistsException();
 
         TagEntity tagEntity = TagEntity.builder()
                 .tagName(tagRequestDTO.getTagName())
@@ -34,11 +30,11 @@ public class TagService {
 
         tagRepository.save(tagEntity);
 
-        return findTag(tagRequestDTO);
+        return findTag(tagRequestDTO.getTagName());
     }
 
-    public TagResponseDTO findTag(TagRequestDTO tagRequestDTO){
-        TagEntity foundTag = tagRepository.findByTagName(tagRequestDTO.getTagName());
+    public TagResponseDTO findTag(String tagName){
+        TagEntity foundTag = tagRepository.findByTagName(tagName);
 
         if(isNull(foundTag)) throw new TagNotFoundException();
 
