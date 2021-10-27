@@ -11,9 +11,7 @@ import java.util.UUID;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Getter
-@Setter
-
+@Data
 @Entity
 @Table(name = "event", indexes = @Index(name = "dateIndex", columnList = "eventDate ASC, eventTime ASC"))
 public class EventEntity {
