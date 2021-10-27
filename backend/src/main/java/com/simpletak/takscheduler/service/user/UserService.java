@@ -45,7 +45,7 @@ public class UserService {
     public AuthTokenDTO signinUser(SigninUserRequestDTO request){
         String hashedPassword = generateHashedPassword(request.getPassword());
         Optional<UserEntity> existingUser =
-                userRepository.findUserEntityByUsernameAndPassword(request.getUsername(), request.getPassword());
+                userRepository.findUserEntityByUsernameAndPassword(request.getUsername(), hashedPassword);
         if(existingUser.isPresent()){
             return null;
         }
@@ -63,6 +63,7 @@ public class UserService {
 
     public EditUserResponseDTO editUser(EditUserRequestDTO editUserRequestDTO){
         Optional<UserEntity> existingUser = userRepository.findById(editUserRequestDTO.getUserId());
+//        existingUser.orElseThrow()
         if(existingUser.isPresent()){
             UserEntity user = existingUser.get();
             user.setUsername(editUserRequestDTO.getUsername());

@@ -1,8 +1,8 @@
 package com.simpletak.takscheduler.service.event;
 
-
 import com.simpletak.takscheduler.model.event.EventEntity;
 import com.simpletak.takscheduler.repository.event.EventRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
