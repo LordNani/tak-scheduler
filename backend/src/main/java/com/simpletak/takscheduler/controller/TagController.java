@@ -3,6 +3,7 @@ package com.simpletak.takscheduler.controller;
 import com.simpletak.takscheduler.config.Response;
 import com.simpletak.takscheduler.dto.tag.TagRequestDTO;
 import com.simpletak.takscheduler.dto.tag.TagResponseDTO;
+import com.simpletak.takscheduler.exception.NotMatchingDataException;
 import com.simpletak.takscheduler.model.tag.TagEntity;
 import com.simpletak.takscheduler.service.tag.TagService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -14,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/tags")
@@ -40,11 +42,14 @@ public class TagController {
             @ApiResponse(responseCode = "200", description = "Updated the tag",
                     content = @Content(mediaType = "application/json")),
             @ApiResponse(responseCode = "404", description = "Tag not found",
+                    content = @Content),
+            @ApiResponse(responseCode = "409", description = "Data conflicting",
                     content = @Content)
     })
     @Operation(summary = "Update existing tag")
-    @PutMapping
-    public Response<TagResponseDTO> updateTag(@Valid @RequestBody TagRequestDTO tagDto) {
+    @PutMapping(path =  "/{id}")
+    public Response<TagResponseDTO> updateTag(@PathVariable("id") UUID id, @Valid @RequestBody TagRequestDTO tagDto) {
+        if(id != tagDto.getTagId()) throw new NotMatchingDataException();
         return Response.success(tagService.updateTag(tagDto));
     }
 

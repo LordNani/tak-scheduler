@@ -41,6 +41,7 @@ public class TagService {
             throw new TagNotFoundException();
 
         TagEntity tagEntity = toEntity(tagRequestDTO);
+        tagEntity.setId(tagRequestDTO.getTagId());
 
         tagRepository.saveAndFlush(tagEntity);
 
@@ -77,7 +78,6 @@ public class TagService {
 
     public TagEntity toEntity(TagRequestDTO tagRequestDTO) {
         return TagEntity.builder()
-                .id(tagRequestDTO.getTagId())
                 .tagName(tagRequestDTO.getTagName())
                 .build();
     }
