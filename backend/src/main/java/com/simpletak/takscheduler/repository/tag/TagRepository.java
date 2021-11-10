@@ -12,8 +12,9 @@ public interface TagRepository extends JpaRepository<TagEntity, UUID> {
     Optional<TagEntity> findById(UUID tagId);
     TagEntity findByTagName(String tagName);
 
-    void deleteById(UUID tagId);
+    void deleteByTagNameOrId(String tagName, UUID tagId);
     boolean existsByTagName(String tagName);
+    boolean existsByTagNameAndId(String tagName, UUID tagId);
 
 
 }

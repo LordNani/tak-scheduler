@@ -1,5 +1,6 @@
 package com.simpletak.takscheduler.controller;
 
+import com.simpletak.takscheduler.config.Response;
 import com.simpletak.takscheduler.dto.tag.TagRequestDTO;
 import com.simpletak.takscheduler.dto.tag.TagResponseDTO;
 import com.simpletak.takscheduler.service.tag.TagService;
@@ -16,14 +17,30 @@ public class TagController {
 
     private final TagService tagService;
 
-    @PostMapping("/create-tag")
-    public TagResponseDTO createTag(@Valid @RequestBody TagRequestDTO tagDto) {
-        return tagService.createTag(tagDto);
+    @PostMapping
+    public Response<TagResponseDTO> createTag(@Valid @RequestBody TagRequestDTO tagDto) {
+
+        return Response.success(tagService.createTag(tagDto));
     }
 
-    @GetMapping("/find-by-name")
-    public TagResponseDTO getTagByName(@RequestParam(name = "tagName") String tagName) {
-        return tagService.findTag(tagName);
+    @PutMapping
+    public Response<TagResponseDTO> updateTag(@Valid @RequestBody TagRequestDTO tagDto) {
+        return Response.success(tagService.updateTag(tagDto));
+    }
+
+    @DeleteMapping
+    public void deleteTag(@Valid @RequestBody TagRequestDTO tagDto) {
+        tagService.deleteTag(tagDto);
+    }
+
+    @GetMapping("/by-name")
+    public Response<TagResponseDTO> getTagByName(@RequestParam(name = "tagName") String tagName) {
+        return Response.success(tagService.findTagByName(tagName));
+    }
+
+    @GetMapping("/by-id")
+    public Response<TagResponseDTO> getTagById(@RequestParam(name = "tagId") String tagId) {
+        return Response.success(tagService.findTagById(tagId));
     }
 
 }
