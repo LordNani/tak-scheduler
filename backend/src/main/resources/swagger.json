@@ -1,0 +1,845 @@
+{
+    "openapi": "3.0.1",
+    "info": {
+        "title": "OpenAPI definition",
+        "version": "v0"
+    },
+    "servers": [
+        {
+            "url": "http://localhost:8081",
+            "description": "Generated server url"
+        }
+    ],
+    "paths": {
+        "/api/tags": {
+            "get": {
+                "tags": [
+                    "tag-controller"
+                ],
+                "summary": "Get all tags, sorted by name",
+                "operationId": "getTags",
+                "parameters": [
+                    {
+                        "name": "size",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of the tags, can be empty",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "tag-controller"
+                ],
+                "summary": "Update existing tag",
+                "operationId": "updateTag",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TagRequestDTO"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Updated the tag",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "404": {
+                        "description": "Tag not found"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "tag-controller"
+                ],
+                "summary": "Create new tag",
+                "operationId": "createTag",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TagRequestDTO"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Found the tag",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "409": {
+                        "description": "Tag with this name exists"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "tag-controller"
+                ],
+                "summary": "Delete a tag by id or name",
+                "operationId": "deleteTag",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TagRequestDTO"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Removed the tag",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "404": {
+                        "description": "Tag not found"
+                    }
+                }
+            }
+        },
+        "/api/events": {
+            "put": {
+                "tags": [
+                    "event-controller"
+                ],
+                "operationId": "updateEvent",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/EventDTO"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/EventEntity"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "event-controller"
+                ],
+                "operationId": "createEvent",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/EventDTO"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/EventEntity"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/event-groups": {
+            "put": {
+                "tags": [
+                    "event-group-controller"
+                ],
+                "operationId": "updateEventGroup",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/EventGroupDTO"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/EventGroupEntity"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "event-group-controller"
+                ],
+                "operationId": "createEventGroup",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/EventGroupDTO"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/EventGroupEntity"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/users/signup": {
+            "post": {
+                "tags": [
+                    "user-controller"
+                ],
+                "summary": "Register new user",
+                "operationId": "signup",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SignupUserRequestDTO"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "New user registered",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "409": {
+                        "description": "Such user already exists"
+                    }
+                }
+            }
+        },
+        "/api/users/signin": {
+            "post": {
+                "tags": [
+                    "user-controller"
+                ],
+                "summary": "Sign in for existing user",
+                "description": "This operation should return JWT token to use in every other request, but this functionality is not implemented yet",
+                "operationId": "signin",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SigninUserRequestDTO"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "403": {
+                        "description": "Password or login is incorrect"
+                    },
+                    "200": {
+                        "description": "Sign in operation was succesfull",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/api/users/edit": {
+            "post": {
+                "tags": [
+                    "user-controller"
+                ],
+                "summary": "User's personal info edit",
+                "operationId": "editUser",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/EditUserRequestDTO"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "404": {
+                        "description": "User with such id was not found"
+                    },
+                    "200": {
+                        "description": "User's personal info edited",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/api/auth/register": {
+            "post": {
+                "tags": [
+                    "auth-controller"
+                ],
+                "operationId": "register",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/users/get-user": {
+            "get": {
+                "tags": [
+                    "user-controller"
+                ],
+                "summary": "Receive user's info by id",
+                "operationId": "getUserInfo",
+                "parameters": [
+                    {
+                        "name": "userId",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User's personal info received",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "404": {
+                        "description": "User with such id was not found"
+                    }
+                }
+            }
+        },
+        "/api/tags/by-name": {
+            "get": {
+                "tags": [
+                    "tag-controller"
+                ],
+                "summary": "Get tag by name",
+                "operationId": "getTagByName",
+                "parameters": [
+                    {
+                        "name": "tagName",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Found the tag",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "404": {
+                        "description": "Tag not found"
+                    }
+                }
+            }
+        },
+        "/api/tags/by-id": {
+            "get": {
+                "tags": [
+                    "tag-controller"
+                ],
+                "summary": "Get tag by id",
+                "operationId": "getTagById",
+                "parameters": [
+                    {
+                        "name": "tagId",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Found the tag",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "404": {
+                        "description": "Tag not found"
+                    }
+                }
+            }
+        },
+        "/api/events/{id}": {
+            "get": {
+                "tags": [
+                    "event-controller"
+                ],
+                "operationId": "getEvent",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/EventEntity"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "event-controller"
+                ],
+                "operationId": "deleteEvent",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/api/event-groups/{id}": {
+            "get": {
+                "tags": [
+                    "event-group-controller"
+                ],
+                "operationId": "getEventGroup",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/EventGroupEntity"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "event-group-controller"
+                ],
+                "operationId": "deleteEventGroup",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/api/users/delete": {
+            "delete": {
+                "tags": [
+                    "user-controller"
+                ],
+                "summary": "Delete user (only he can do it, because password is required)",
+                "operationId": "deleteUser",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DeleteUserRequestDTO"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "User's account was deleted",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "401": {
+                        "description": "Password or login is incorrect"
+                    },
+                    "404": {
+                        "description": "User with such id was not found"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "TagRequestDTO": {
+                "required": [
+                    "tagName"
+                ],
+                "type": "object",
+                "properties": {
+                    "tagId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "tagName": {
+                        "maxLength": 32,
+                        "minLength": 2,
+                        "type": "string"
+                    }
+                }
+            },
+            "EventDTO": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "eventName": {
+                        "type": "string"
+                    },
+                    "eventDescription": {
+                        "type": "string"
+                    },
+                    "eventPriority": {
+                        "type": "string",
+                        "enum": [
+                            "CRITICAL",
+                            "HIGH",
+                            "MEDIUM",
+                            "LOW"
+                        ]
+                    },
+                    "eventFreq": {
+                        "type": "string",
+                        "enum": [
+                            "DAILY",
+                            "WEEKLY"
+                        ]
+                    },
+                    "eventDate": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "eventTime": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "reoccurring": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "EventEntity": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "eventName": {
+                        "type": "string"
+                    },
+                    "eventDescription": {
+                        "type": "string"
+                    },
+                    "eventPriority": {
+                        "type": "string",
+                        "enum": [
+                            "CRITICAL",
+                            "HIGH",
+                            "MEDIUM",
+                            "LOW"
+                        ]
+                    },
+                    "eventFreq": {
+                        "type": "string",
+                        "enum": [
+                            "DAILY",
+                            "WEEKLY"
+                        ]
+                    },
+                    "eventDate": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "eventTime": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "reoccurring": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "EventGroupDTO": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "eventName": {
+                        "type": "string"
+                    },
+                    "eventGroupDescription": {
+                        "type": "string"
+                    },
+                    "ownerId": {
+                        "type": "string",
+                        "format": "uuid"
+                    }
+                }
+            },
+            "EventGroupEntity": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "eventName": {
+                        "type": "string"
+                    },
+                    "eventGroupDescription": {
+                        "type": "string"
+                    },
+                    "owner": {
+                        "$ref": "#/components/schemas/UserEntity"
+                    }
+                }
+            },
+            "UserEntity": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "username": {
+                        "type": "string"
+                    },
+                    "password": {
+                        "type": "string"
+                    },
+                    "fullName": {
+                        "type": "string"
+                    }
+                }
+            },
+            "SignupUserRequestDTO": {
+                "required": [
+                    "password",
+                    "username"
+                ],
+                "type": "object",
+                "properties": {
+                    "fullName": {
+                        "type": "string"
+                    },
+                    "username": {
+                        "maxLength": 64,
+                        "minLength": 6,
+                        "type": "string"
+                    },
+                    "password": {
+                        "maxLength": 128,
+                        "minLength": 8,
+                        "type": "string"
+                    }
+                }
+            },
+            "SigninUserRequestDTO": {
+                "required": [
+                    "password",
+                    "username"
+                ],
+                "type": "object",
+                "properties": {
+                    "username": {
+                        "maxLength": 64,
+                        "minLength": 6,
+                        "type": "string"
+                    },
+                    "password": {
+                        "maxLength": 128,
+                        "minLength": 8,
+                        "type": "string"
+                    }
+                }
+            },
+            "EditUserRequestDTO": {
+                "required": [
+                    "fullName",
+                    "userId",
+                    "username"
+                ],
+                "type": "object",
+                "properties": {
+                    "userId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "username": {
+                        "maxLength": 64,
+                        "minLength": 6,
+                        "type": "string"
+                    },
+                    "fullName": {
+                        "maxLength": 128,
+                        "minLength": 0,
+                        "type": "string"
+                    }
+                }
+            },
+            "DeleteUserRequestDTO": {
+                "required": [
+                    "password"
+                ],
+                "type": "object",
+                "properties": {
+                    "userId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "password": {
+                        "maxLength": 128,
+                        "minLength": 8,
+                        "type": "string"
+                    }
+                }
+            }
+        }
+    }
+}
