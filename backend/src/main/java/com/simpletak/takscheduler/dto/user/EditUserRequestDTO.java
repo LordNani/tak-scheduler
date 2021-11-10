@@ -12,6 +12,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 public class EditUserRequestDTO {
+    @NotNull
     private UUID userId;
     @NotNull
     @Size(min = 6, max = 64)
