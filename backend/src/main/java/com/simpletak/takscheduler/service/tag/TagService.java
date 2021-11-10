@@ -7,6 +7,9 @@ import com.simpletak.takscheduler.exception.tag.TagNotFoundException;
 import com.simpletak.takscheduler.model.tag.TagEntity;
 import com.simpletak.takscheduler.repository.tag.TagRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -79,4 +82,11 @@ public class TagService {
                 .build();
     }
 
+    public Page<TagEntity> findAll(int size, int page) {
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<TagEntity> productPage =
+                tagRepository.findAll(pageable);
+        return productPage;
+    }
 }
