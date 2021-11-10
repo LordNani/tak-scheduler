@@ -1,6 +1,10 @@
 package com.simpletak.takscheduler.model.event;
 
-import lombok.*;
+import com.simpletak.takscheduler.model.eventGroup.EventGroupEntity;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 
@@ -47,6 +51,10 @@ public class EventEntity {
     @Column(name = "eventTime")
     @Temporal(TemporalType.TIME)
     private Date eventTime;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="eventGroup_id", nullable = false)
+    private EventGroupEntity eventGroup;
 
 //    private EventDateTime eventDateTime;
 
