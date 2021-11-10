@@ -37,7 +37,7 @@ public class TagService {
     }
 
     public TagResponseDTO updateTag(TagRequestDTO tagRequestDTO){
-        if(!tagRepository.existsByTagNameAndId(tagRequestDTO.getTagName(),tagRequestDTO.getTagId()))
+        if(!tagRepository.existsById(tagRequestDTO.getTagId()))
             throw new TagNotFoundException();
 
         TagEntity tagEntity = toEntity(tagRequestDTO);
