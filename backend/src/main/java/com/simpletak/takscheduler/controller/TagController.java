@@ -1,9 +1,16 @@
 package com.simpletak.takscheduler.controller;
 
+import com.simpletak.takscheduler.config.Response;
 import com.simpletak.takscheduler.dto.tag.TagRequestDTO;
 import com.simpletak.takscheduler.dto.tag.TagResponseDTO;
+import com.simpletak.takscheduler.model.tag.TagEntity;
 import com.simpletak.takscheduler.service.tag.TagService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -16,14 +23,74 @@ public class TagController {
 
     private final TagService tagService;
 
-    @PostMapping("/create-tag")
-    public TagResponseDTO createTag(@Valid @RequestBody TagRequestDTO tagDto) {
-        return tagService.createTag(tagDto);
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Found the tag",
+                    content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "409", description = "Tag with this name exists",
+                    content = @Content)
+    })
+    @Operation(summary = "Create new tag")
+    @PostMapping
+    public Response<TagResponseDTO> createTag(@Valid @RequestBody TagRequestDTO tagDto) {
+
+        return Response.success(tagService.createTag(tagDto));
     }
 
-    @GetMapping("/find-by-name")
-    public TagResponseDTO getTagByName(@RequestParam(name = "tagName") String tagName) {
-        return tagService.findTag(tagName);
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Updated the tag",
+                    content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "404", description = "Tag not found",
+                    content = @Content)
+    })
+    @Operation(summary = "Update existing tag")
+    @PutMapping
+    public Response<TagResponseDTO> updateTag(@Valid @RequestBody TagRequestDTO tagDto) {
+        return Response.success(tagService.updateTag(tagDto));
     }
 
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Removed the tag",
+                    content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "404", description = "Tag not found",
+                    content = @Content)
+    })
+    @Operation(summary = "Delete a tag by id or name")
+    @DeleteMapping
+    public void deleteTag(@Valid @RequestBody TagRequestDTO tagDto) {
+        tagService.deleteTag(tagDto);
+    }
+
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Found the tag",
+                    content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "404", description = "Tag not found",
+                    content = @Content)
+    })
+    @Operation(summary = "Get tag by name")
+    @GetMapping("/by-name")
+    public Response<TagResponseDTO> getTagByName(@RequestParam(name = "tagName") String tagName) {
+        return Response.success(tagService.findTagByName(tagName));
+    }
+
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Found the tag",
+                    content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "404", description = "Tag not found",
+                    content = @Content),
+    })
+    @Operation(summary = "Get tag by id")
+    @GetMapping("/by-id")
+    public Response<TagResponseDTO> getTagById(@RequestParam(name = "tagId") String tagId) {
+        return Response.success(tagService.findTagById(tagId));
+    }
+
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "List of the tags, can be empty",
+                    content = @Content(mediaType = "application/json")),
+    })
+    @Operation(summary = "Get all tags, sorted by name")
+    @GetMapping
+    public Response<Page<TagEntity>> getTags(@RequestParam(name = "size") int size, @RequestParam(name = "page") int page) {
+        return Response.success(tagService.findAll(size, page));
+    }
 }
