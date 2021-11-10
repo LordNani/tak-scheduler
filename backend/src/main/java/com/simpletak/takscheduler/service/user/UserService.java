@@ -2,6 +2,7 @@ package com.simpletak.takscheduler.service.user;
 
 import com.simpletak.takscheduler.dto.user.*;
 import com.simpletak.takscheduler.exception.user.PasswordIsIncorrectException;
+import com.simpletak.takscheduler.exception.user.SuchUserAlreadyExistsException;
 import com.simpletak.takscheduler.exception.user.UserNotFoundException;
 import com.simpletak.takscheduler.model.user.UserEntity;
 import com.simpletak.takscheduler.repository.user.UserRepository;
@@ -27,7 +28,7 @@ public class UserService {
         Example<UserEntity> example = Example.of(exampleUser);
         Optional<UserEntity> existingUser = userRepository.findOne(example);
         if(existingUser.isPresent()){
-            throw new IllegalArgumentException("Such user already exists");
+            throw new SuchUserAlreadyExistsException();
         }
         else{
             UserEntity userToSave = UserEntity
@@ -91,7 +92,7 @@ public class UserService {
 
 
     private static boolean isPasswordCorrect(String password, String hash) {
-        return true;
+        return password.equals(hash);
     }
 
     private static String generateHashedPassword(String password) {

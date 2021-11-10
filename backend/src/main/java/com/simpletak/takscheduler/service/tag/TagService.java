@@ -7,7 +7,12 @@ import com.simpletak.takscheduler.exception.tag.TagNotFoundException;
 import com.simpletak.takscheduler.model.tag.TagEntity;
 import com.simpletak.takscheduler.repository.tag.TagRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.util.UUID;
 
 import static java.util.Objects.isNull;
 
@@ -24,16 +29,25 @@ public class TagService {
     public TagResponseDTO createTag(TagRequestDTO tagRequestDTO){
         if(tagRepository.existsByTagName(tagRequestDTO.getTagName())) throw new TagAlreadyExistsException();
 
-        TagEntity tagEntity = TagEntity.builder()
-                .tagName(tagRequestDTO.getTagName())
-                .build();
+        TagEntity tagEntity = toEntity(tagRequestDTO);
 
-        tagRepository.save(tagEntity);
+        tagRepository.saveAndFlush(tagEntity);
 
-        return findTag(tagRequestDTO.getTagName());
+        return findTagByName(tagRequestDTO.getTagName());
     }
 
-    public TagResponseDTO findTag(String tagName){
+    public TagResponseDTO updateTag(TagRequestDTO tagRequestDTO){
+        if(!tagRepository.existsById(tagRequestDTO.getTagId()))
+            throw new TagNotFoundException();
+
+        TagEntity tagEntity = toEntity(tagRequestDTO);
+
+        tagRepository.saveAndFlush(tagEntity);
+
+        return findTagByName(tagRequestDTO.getTagName());
+    }
+
+    public TagResponseDTO findTagByName(String tagName){
         TagEntity foundTag = tagRepository.findByTagName(tagName);
 
         if(isNull(foundTag)) throw new TagNotFoundException();
@@ -43,5 +57,36 @@ public class TagService {
         return responseDTO;
     }
 
+    public void deleteTag(TagRequestDTO tagRequestDTO){
+        if(!tagRepository.existsByTagName(tagRequestDTO.getTagName()))
+            throw new TagNotFoundException();
 
+        tagRepository.deleteByTagNameOrId(tagRequestDTO.getTagName(),tagRequestDTO.getTagId());
+    }
+
+    public TagResponseDTO findTagById(String tagId){
+        TagEntity foundTag = tagRepository.findById(UUID.fromString(tagId)).get();
+
+        if(isNull(foundTag)) throw new TagNotFoundException();
+
+        TagResponseDTO responseDTO = new TagResponseDTO(foundTag.getId(), foundTag.getTagName());
+
+        return responseDTO;
+    }
+
+
+    public TagEntity toEntity(TagRequestDTO tagRequestDTO) {
+        return TagEntity.builder()
+                .id(tagRequestDTO.getTagId())
+                .tagName(tagRequestDTO.getTagName())
+                .build();
+    }
+
+    public Page<TagEntity> findAll(int size, int page) {
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<TagEntity> productPage =
+                tagRepository.findAll(pageable);
+        return productPage;
+    }
 }
