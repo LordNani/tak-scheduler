@@ -9,16 +9,8 @@ import java.util.UUID;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class EventGroupDTO{
-
-    public EventGroupDTO(NewEventGroupDTO base, UUID id){
-        this.eventGroupDescription = base.getEventGroupDescription();
-        this.eventName = base.getEventName();
-        this.ownerId = base.getOwnerId();
-        this.id = id;
-    }
+public class NewEventGroupDTO {
     private String eventName;
     private String eventGroupDescription;
     private UUID ownerId;
-    private UUID id;
 }

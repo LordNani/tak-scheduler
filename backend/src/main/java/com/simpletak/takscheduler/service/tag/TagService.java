@@ -19,7 +19,7 @@ import static java.util.Objects.isNull;
 @Service
 public class TagService {
 
-    private TagRepository tagRepository;
+    private final TagRepository tagRepository;
 
     @Autowired
     public TagService(TagRepository tagRepository){
