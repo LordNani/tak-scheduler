@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.UUID;
 
@@ -12,16 +13,6 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 public class EventDTO {
-    private UUID id;
-    private String eventName;
-    private String eventDescription;
-    private EventPriority eventPriority;
-    private boolean isReoccurring;
-    private EventFreq eventFreq;
-    private Date eventDate;
-    private Date eventTime;
-    private UUID eventGroupId;
-
     public EventDTO(NewEventDTO eventDTO, UUID id) {
         this.id = id;
         this.eventDate = eventDTO.getEventDate();
@@ -33,4 +24,23 @@ public class EventDTO {
         this.eventDescription = eventDTO.getEventDescription();
         this.eventGroupId = eventDTO.getEventGroupId();
     }
+    @NotNull
+    private UUID id;
+    @NotNull
+    private String eventName;
+    @NotNull
+    private String eventDescription;
+    @NotNull
+    private EventPriority eventPriority;
+    @NotNull
+    private boolean isReoccurring;
+    @NotNull
+    private EventFreq eventFreq;
+    @NotNull
+    private Date eventDate;
+    @NotNull
+    private Date eventTime;
+    @NotNull
+    private UUID eventGroupId;
+
 }

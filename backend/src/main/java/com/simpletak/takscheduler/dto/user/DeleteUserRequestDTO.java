@@ -12,6 +12,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 public class DeleteUserRequestDTO {
+    @NotNull
     private UUID userId;
     @NotNull
     @Size(min = 8, max = 128)
