@@ -1,6 +1,7 @@
 package com.simpletak.takscheduler.controller.event;
 
 import com.simpletak.takscheduler.dto.event.EventDTO;
+import com.simpletak.takscheduler.dto.event.NewEventDTO;
 import com.simpletak.takscheduler.model.event.EventEntity;
 import com.simpletak.takscheduler.service.event.EventService;
 import lombok.RequiredArgsConstructor;
@@ -15,17 +16,17 @@ public class EventController {
     private final EventService eventService;
 
     @GetMapping("/{id}")
-    public EventEntity getEvent(@PathVariable("id") UUID id) {
+    public EventDTO getEvent(@PathVariable("id") UUID id) {
         return eventService.findEventById(id);
     }
 
     @PostMapping
-    public EventEntity createEvent(@RequestBody EventDTO eventDTO) {
+    public EventDTO createEvent(@RequestBody NewEventDTO eventDTO) {
         return eventService.createEvent(eventDTO);
     }
 
     @PutMapping
-    public EventEntity updateEvent(@RequestBody EventDTO eventDTO) {
+    public EventDTO updateEvent(@RequestBody EventDTO eventDTO) {
         return eventService.updateEvent(eventDTO);
     }
 

@@ -21,7 +21,6 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class EventGroupService {
     private final EventGroupRepository eventGroupRepository;
-    private final UserRepository userRepository;
     private final EventGroupMapper mapper;
 
     public EventGroupDTO findEventGroupById(UUID id) {
