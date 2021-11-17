@@ -1,5 +1,6 @@
-package com.simpletak.takscheduler.controller;
+package com.simpletak.takscheduler.controller.user;
 
+import com.simpletak.takscheduler.config.Response;
 import com.simpletak.takscheduler.dto.user.*;
 import com.simpletak.takscheduler.service.user.SigninUserRequestDTO;
 import com.simpletak.takscheduler.service.user.UserService;
@@ -7,7 +8,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -15,9 +16,10 @@ import java.util.UUID;
 
 @RequestMapping("/api/users")
 @RestController
+@RequiredArgsConstructor
 public class UserController {
-    @Autowired
-    UserService userService;
+
+    private final UserService userService;
 
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "New user registered",
@@ -26,9 +28,9 @@ public class UserController {
                     content = @Content)
     })
     @Operation(summary = "Register new user")
-    @PostMapping("/signup")
-    public SignupUserResponseDTO signup(@Valid @RequestBody SignupUserRequestDTO signupUserRequestDTO){
-        return userService.registerUser(signupUserRequestDTO);
+    @PostMapping("/sign-up")
+    public Response<SignupUserResponseDTO> signup(@Valid @RequestBody SignupUserRequestDTO signupUserRequestDTO){
+        return Response.success(userService.registerUser(signupUserRequestDTO));
     }
 
     @ApiResponses(value = {
@@ -38,9 +40,9 @@ public class UserController {
                     content = @Content)
     })
     @Operation(summary = "Sign in for existing user", description = "This operation should return JWT token to use in every other request, but this functionality is not implemented yet")
-    @PostMapping("/signin")
-    public AuthTokenDTO signin(@Valid @RequestBody SigninUserRequestDTO signinUserRequestDTO){
-        return userService.signinUser(signinUserRequestDTO);
+    @PostMapping("/sign-in")
+    public Response<AuthTokenDTO> signin(@Valid @RequestBody SigninUserRequestDTO signinUserRequestDTO){
+        return Response.success(userService.signinUser(signinUserRequestDTO));
     }
 
     @ApiResponses(value = {
@@ -50,9 +52,9 @@ public class UserController {
                     content = @Content)
     })
     @Operation(summary = "User's personal info edit")
-    @PostMapping("/edit")
-    public EditUserResponseDTO editUser(@Valid @RequestBody EditUserRequestDTO editUserRequestDTO){
-        return userService.editUser(editUserRequestDTO);
+    @PostMapping
+    public Response<EditUserResponseDTO> editUser(@Valid @RequestBody EditUserRequestDTO editUserRequestDTO){
+        return Response.success(userService.editUser(editUserRequestDTO));
     }
 
     @ApiResponses(value = {
@@ -64,7 +66,7 @@ public class UserController {
                     content = @Content)
     })
     @Operation(summary = "Delete user (only he can do it, because password is required)")
-    @DeleteMapping("/delete")
+    @DeleteMapping
     public void deleteUser(@Valid @RequestBody DeleteUserRequestDTO deleteUserRequestDTO){
         userService.deleteUser(deleteUserRequestDTO);
     }
@@ -76,8 +78,8 @@ public class UserController {
                     content = @Content)
     })
     @Operation(summary = "Receive user's info by id")
-    @GetMapping("/get-user")
-    public UserInfoResponseDTO getUserInfo(@Valid @RequestParam UUID userId){
-        return userService.getUser(userId);
+    @GetMapping
+    public Response<UserInfoResponseDTO> getUserInfo(@Valid @RequestParam UUID userId){
+        return Response.success(userService.getUser(userId));
     }
 }

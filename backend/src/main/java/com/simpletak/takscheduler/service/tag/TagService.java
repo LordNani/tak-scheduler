@@ -19,7 +19,7 @@ import static java.util.Objects.isNull;
 @Service
 public class TagService {
 
-    private TagRepository tagRepository;
+    private final TagRepository tagRepository;
 
     @Autowired
     public TagService(TagRepository tagRepository){
@@ -36,11 +36,12 @@ public class TagService {
         return findTagByName(tagRequestDTO.getTagName());
     }
 
-    public TagResponseDTO updateTag(TagRequestDTO tagRequestDTO){
-        if(!tagRepository.existsById(tagRequestDTO.getTagId()))
+    public TagResponseDTO updateTag(UUID id, TagRequestDTO tagRequestDTO){
+        if(!tagRepository.existsById(id))
             throw new TagNotFoundException();
 
         TagEntity tagEntity = toEntity(tagRequestDTO);
+        tagEntity.setId(id);
 
         tagRepository.saveAndFlush(tagEntity);
 
@@ -52,32 +53,24 @@ public class TagService {
 
         if(isNull(foundTag)) throw new TagNotFoundException();
 
-        TagResponseDTO responseDTO = new TagResponseDTO(foundTag.getId(), foundTag.getTagName());
-
-        return responseDTO;
+        return new TagResponseDTO(foundTag.getId(), foundTag.getTagName());
     }
 
-    public void deleteTag(TagRequestDTO tagRequestDTO){
-        if(!tagRepository.existsByTagName(tagRequestDTO.getTagName()))
-            throw new TagNotFoundException();
+    public void deleteById(UUID tagId){
+        if(!tagRepository.existsById(tagId)) throw new TagNotFoundException();
 
-        tagRepository.deleteByTagNameOrId(tagRequestDTO.getTagName(),tagRequestDTO.getTagId());
+        tagRepository.deleteById(tagId);
     }
 
-    public TagResponseDTO findTagById(String tagId){
-        TagEntity foundTag = tagRepository.findById(UUID.fromString(tagId)).get();
+    public TagResponseDTO findTagById(UUID tagId){
+        TagEntity foundTag = tagRepository.findById(tagId).orElseThrow(TagNotFoundException::new);
 
-        if(isNull(foundTag)) throw new TagNotFoundException();
-
-        TagResponseDTO responseDTO = new TagResponseDTO(foundTag.getId(), foundTag.getTagName());
-
-        return responseDTO;
+        return new TagResponseDTO(foundTag.getId(), foundTag.getTagName());
     }
 
 
     public TagEntity toEntity(TagRequestDTO tagRequestDTO) {
         return TagEntity.builder()
-                .id(tagRequestDTO.getTagId())
                 .tagName(tagRequestDTO.getTagName())
                 .build();
     }

@@ -1,4 +1,4 @@
-package com.simpletak.takscheduler.controller;
+package com.simpletak.takscheduler.controller.tag;
 
 import com.simpletak.takscheduler.config.Response;
 import com.simpletak.takscheduler.dto.tag.TagRequestDTO;
@@ -14,6 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/tags")
@@ -40,12 +41,14 @@ public class TagController {
             @ApiResponse(responseCode = "200", description = "Updated the tag",
                     content = @Content(mediaType = "application/json")),
             @ApiResponse(responseCode = "404", description = "Tag not found",
+                    content = @Content),
+            @ApiResponse(responseCode = "409", description = "Data conflicting",
                     content = @Content)
     })
     @Operation(summary = "Update existing tag")
-    @PutMapping
-    public Response<TagResponseDTO> updateTag(@Valid @RequestBody TagRequestDTO tagDto) {
-        return Response.success(tagService.updateTag(tagDto));
+    @PutMapping(path =  "/{id}")
+    public Response<TagResponseDTO> updateTag(@PathVariable("id") UUID id, @Valid @RequestBody TagRequestDTO tagDto) {
+        return Response.success(tagService.updateTag(id, tagDto));
     }
 
     @ApiResponses(value = {
@@ -55,9 +58,9 @@ public class TagController {
                     content = @Content)
     })
     @Operation(summary = "Delete a tag by id or name")
-    @DeleteMapping
-    public void deleteTag(@Valid @RequestBody TagRequestDTO tagDto) {
-        tagService.deleteTag(tagDto);
+    @DeleteMapping("/{id}")
+    public void deleteTag(@PathVariable("id") UUID id) {
+        tagService.deleteById(id);
     }
 
     @ApiResponses(value = {
@@ -67,8 +70,8 @@ public class TagController {
                     content = @Content)
     })
     @Operation(summary = "Get tag by name")
-    @GetMapping("/by-name")
-    public Response<TagResponseDTO> getTagByName(@RequestParam(name = "tagName") String tagName) {
+    @GetMapping("/by-name/{tagName}")
+    public Response<TagResponseDTO> getTagByName(@PathVariable("tagName") String tagName) {
         return Response.success(tagService.findTagByName(tagName));
     }
 
@@ -79,9 +82,9 @@ public class TagController {
                     content = @Content),
     })
     @Operation(summary = "Get tag by id")
-    @GetMapping("/by-id")
-    public Response<TagResponseDTO> getTagById(@RequestParam(name = "tagId") String tagId) {
-        return Response.success(tagService.findTagById(tagId));
+    @GetMapping("/{id}")
+    public Response<TagResponseDTO> getTagById(@PathVariable("id") UUID id) {
+        return Response.success(tagService.findTagById(id));
     }
 
     @ApiResponses(value = {

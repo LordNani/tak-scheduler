@@ -11,6 +11,7 @@ import javax.validation.constraints.Size;
 @NoArgsConstructor
 //@AllArgsConstructor
 public class SignupUserRequestDTO {
+    @NotNull
     private String fullName;
     @NotNull
     @Size(min = 6, max = 64)
