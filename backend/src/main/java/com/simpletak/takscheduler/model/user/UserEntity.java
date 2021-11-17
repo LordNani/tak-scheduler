@@ -1,5 +1,6 @@
 package com.simpletak.takscheduler.model.user;
 
+import com.simpletak.takscheduler.model.user.role.RoleEntity;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
@@ -32,6 +33,10 @@ public class UserEntity{
 
     @Column(name = "password", nullable = false)
     private String password;
+
+    @ManyToOne
+    @JoinColumn(name = "role_id")
+    private RoleEntity roleEntity;
 
     @ToString.Exclude
     @Column(name = "full_name", length = 128, nullable = false)

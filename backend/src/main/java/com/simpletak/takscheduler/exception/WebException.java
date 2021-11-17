@@ -5,7 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @Getter
-@ResponseStatus(code = HttpStatus.NOT_FOUND, reason = "Motherboard is not found")
+@ResponseStatus(code = HttpStatus.NOT_FOUND, reason = "Entity is not found")
 public class WebException extends RuntimeException {
 
     private final HttpStatus httpStatus;
