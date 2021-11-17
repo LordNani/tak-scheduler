@@ -1,9 +1,8 @@
-package com.simpletak.takscheduler.controller;
+package com.simpletak.takscheduler.controller.tag;
 
 import com.simpletak.takscheduler.config.Response;
 import com.simpletak.takscheduler.dto.tag.TagRequestDTO;
 import com.simpletak.takscheduler.dto.tag.TagResponseDTO;
-import com.simpletak.takscheduler.exception.NotMatchingDataException;
 import com.simpletak.takscheduler.model.tag.TagEntity;
 import com.simpletak.takscheduler.service.tag.TagService;
 import io.swagger.v3.oas.annotations.Operation;

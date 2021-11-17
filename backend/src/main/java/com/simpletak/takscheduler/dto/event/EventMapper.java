@@ -5,7 +5,6 @@ import com.simpletak.takscheduler.exception.eventgroup.EventGroupNotFoundExcepti
 import com.simpletak.takscheduler.model.event.EventEntity;
 import com.simpletak.takscheduler.model.eventGroup.EventGroupEntity;
 import com.simpletak.takscheduler.repository.eventGroup.EventGroupRepository;
-import com.simpletak.takscheduler.repository.user.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

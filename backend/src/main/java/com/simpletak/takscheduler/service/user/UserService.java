@@ -1,41 +1,45 @@
 package com.simpletak.takscheduler.service.user;
 
+import com.simpletak.takscheduler.config.security.jwt.JwtProviderImpl;
 import com.simpletak.takscheduler.dto.user.*;
 import com.simpletak.takscheduler.exception.user.PasswordIsIncorrectException;
 import com.simpletak.takscheduler.exception.user.SuchUserAlreadyExistsException;
 import com.simpletak.takscheduler.exception.user.UserNotFoundException;
+import com.simpletak.takscheduler.exception.user.role.RoleNotFoundException;
+import com.simpletak.takscheduler.model.user.role.RoleEntity;
 import com.simpletak.takscheduler.model.user.UserEntity;
 import com.simpletak.takscheduler.repository.user.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Example;
+import com.simpletak.takscheduler.repository.user.role.RoleEntityRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtProviderImpl jwtProviderImpl;
+    private final RoleEntityRepository roleEntityRepository;
 
-    @Autowired
-    public UserService(UserRepository userRepository){
-        this.userRepository = userRepository;
-    }
+    @Transactional
+    public SignupUserResponseDTO registerUser(SignupUserRequestDTO signupUserRequestDTO) {
+        boolean isExists = userRepository.existsByUsername(signupUserRequestDTO.getUsername());
 
-    public SignupUserResponseDTO registerUser(SignupUserRequestDTO signupUserRequestDTO){
-        UserEntity exampleUser = new UserEntity();
-        exampleUser.setUsername(signupUserRequestDTO.getUsername());
-        Example<UserEntity> example = Example.of(exampleUser);
-        Optional<UserEntity> existingUser = userRepository.findOne(example);
-        if(existingUser.isPresent()){
+        if (isExists) {
             throw new SuchUserAlreadyExistsException();
-        }
-        else{
+        } else {
+            RoleEntity userRole = roleEntityRepository.findByName("ROLE_USER").orElseThrow(RoleNotFoundException::new);
             UserEntity userToSave = UserEntity
                     .builder()
                     .username(signupUserRequestDTO.getUsername())
                     .fullName(signupUserRequestDTO.getFullName())
-                    .password(signupUserRequestDTO.getPassword())
+                    .roleEntity(userRole)
+                    .password(generateHashedPassword(signupUserRequestDTO.getPassword()))
                     .build();
 
             userRepository.saveAndFlush(userToSave);
@@ -43,26 +47,30 @@ public class UserService {
         }
     }
 
-    public AuthTokenDTO signinUser(SigninUserRequestDTO request){
-        String hashedPassword = generateHashedPassword(request.getPassword());
-        Optional<UserEntity> existingUser =
-                userRepository.findUserEntityByUsernameAndPassword(request.getUsername(), hashedPassword);
-        if(existingUser.isPresent()){
-            return null;
+    @Transactional
+    public AuthTokenDTO signinUser(SigninUserRequestDTO userEntity) {
+        String inputPassword = userEntity.getPassword();
+        UserEntity existingUser = userRepository.findUserEntityByUsername(userEntity.getUsername()).orElseThrow(UserNotFoundException::new);
+        String dbPassword = existingUser.getPassword();
+
+        if (passwordEncoder.matches(inputPassword, dbPassword)) {
+            String token = jwtProviderImpl.generateToken(userEntity.getUsername(), existingUser.getRoleEntity().getName());
+            return new AuthTokenDTO(token);
+        } else {
+            throw new PasswordIsIncorrectException();
         }
-        else throw new PasswordIsIncorrectException();
     }
 
     public UserInfoResponseDTO getUser(UUID id) {
         Optional<UserEntity> existingUser = userRepository.findById(id);
-        if(existingUser.isPresent()) {
+        if (existingUser.isPresent()) {
             UserEntity user = existingUser.get();
             return new UserInfoResponseDTO(user.getId(), user.getUsername(), user.getFullName());
-        }
-        else throw new UserNotFoundException();
+        } else throw new UserNotFoundException();
     }
 
-    public EditUserResponseDTO editUser(EditUserRequestDTO editUserRequestDTO){
+    @Transactional
+    public EditUserResponseDTO editUser(EditUserRequestDTO editUserRequestDTO) {
         UserEntity user = userRepository.findById(editUserRequestDTO.getUserId()).orElseThrow(UserNotFoundException::new);
 
         user.setUsername(editUserRequestDTO.getUsername());
@@ -71,27 +79,28 @@ public class UserService {
         return new EditUserResponseDTO(user.getUsername(), user.getFullName());
     }
 
-    public void deleteUser(DeleteUserRequestDTO deleteUserRequestDTO){
+    @Transactional
+    public void deleteUser(DeleteUserRequestDTO deleteUserRequestDTO) {
         Optional<UserEntity> existingUser = userRepository.findById(deleteUserRequestDTO.getUserId());
-        if(existingUser.isPresent()){
+        if (existingUser.isPresent()) {
             UserEntity user = existingUser.get();
-            if(isPasswordCorrect(deleteUserRequestDTO.getPassword(), user.getPassword())){
+            if (isPasswordCorrect(deleteUserRequestDTO.getPassword(), user.getPassword())) {
                 userRepository.deleteById(user.getId());
                 userRepository.flush();
-            }
-            else throw new PasswordIsIncorrectException();
-        }
-        else throw new UserNotFoundException();
+            } else throw new PasswordIsIncorrectException();
+        } else throw new UserNotFoundException();
     }
-
-
 
 
     private static boolean isPasswordCorrect(String password, String hash) {
         return password.equals(hash);
     }
 
-    private static String generateHashedPassword(String password) {
-        return password;
+    private String generateHashedPassword(String password) {
+        return passwordEncoder.encode(password);
+    }
+
+    public UserEntity findByLogin(String username) {
+        return userRepository.findUserEntityByUsername(username).orElseThrow(UserNotFoundException::new);
     }
 }
