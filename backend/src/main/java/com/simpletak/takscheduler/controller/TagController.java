@@ -49,8 +49,7 @@ public class TagController {
     @Operation(summary = "Update existing tag")
     @PutMapping(path =  "/{id}")
     public Response<TagResponseDTO> updateTag(@PathVariable("id") UUID id, @Valid @RequestBody TagRequestDTO tagDto) {
-        if(id != tagDto.getTagId()) throw new NotMatchingDataException();
-        return Response.success(tagService.updateTag(tagDto));
+        return Response.success(tagService.updateTag(id, tagDto));
     }
 
     @ApiResponses(value = {
@@ -60,9 +59,9 @@ public class TagController {
                     content = @Content)
     })
     @Operation(summary = "Delete a tag by id or name")
-    @DeleteMapping
-    public void deleteTag(@Valid @RequestBody TagRequestDTO tagDto) {
-        tagService.deleteTag(tagDto);
+    @DeleteMapping("/{id}")
+    public void deleteTag(@PathVariable("id") UUID id) {
+        tagService.deleteById(id);
     }
 
     @ApiResponses(value = {
@@ -72,8 +71,8 @@ public class TagController {
                     content = @Content)
     })
     @Operation(summary = "Get tag by name")
-    @GetMapping("/by-name")
-    public Response<TagResponseDTO> getTagByName(@RequestParam(name = "tagName") String tagName) {
+    @GetMapping("/by-name/{tagName}")
+    public Response<TagResponseDTO> getTagByName(@PathVariable("tagName") String tagName) {
         return Response.success(tagService.findTagByName(tagName));
     }
 
@@ -84,9 +83,9 @@ public class TagController {
                     content = @Content),
     })
     @Operation(summary = "Get tag by id")
-    @GetMapping("/by-id")
-    public Response<TagResponseDTO> getTagById(@RequestParam(name = "tagId") String tagId) {
-        return Response.success(tagService.findTagById(tagId));
+    @GetMapping("/{id}")
+    public Response<TagResponseDTO> getTagById(@PathVariable("id") UUID id) {
+        return Response.success(tagService.findTagById(id));
     }
 
     @ApiResponses(value = {

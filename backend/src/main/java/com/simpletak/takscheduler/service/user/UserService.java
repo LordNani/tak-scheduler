@@ -63,16 +63,12 @@ public class UserService {
     }
 
     public EditUserResponseDTO editUser(EditUserRequestDTO editUserRequestDTO){
-        Optional<UserEntity> existingUser = userRepository.findById(editUserRequestDTO.getUserId());
-//        existingUser.orElseThrow()
-        if(existingUser.isPresent()){
-            UserEntity user = existingUser.get();
-            user.setUsername(editUserRequestDTO.getUsername());
-            user.setFullName(editUserRequestDTO.getFullName());
-            userRepository.saveAndFlush(user);
-            return new EditUserResponseDTO(user.getUsername(), user.getFullName());
-        }
-        else throw new UserNotFoundException();
+        UserEntity user = userRepository.findById(editUserRequestDTO.getUserId()).orElseThrow(UserNotFoundException::new);
+
+        user.setUsername(editUserRequestDTO.getUsername());
+        user.setFullName(editUserRequestDTO.getFullName());
+        userRepository.saveAndFlush(user);
+        return new EditUserResponseDTO(user.getUsername(), user.getFullName());
     }
 
     public void deleteUser(DeleteUserRequestDTO deleteUserRequestDTO){

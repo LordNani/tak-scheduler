@@ -33,12 +33,12 @@ public class RestResponseExceptionHandler extends ResponseEntityExceptionHandler
                 .body(Response.error("Internal server error"));
     }
 
-    @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<Response<Void>> handleWebException (UserNotFoundException e) {
-        return ResponseEntity
-                .status(e.getHttpStatus())
-                .body(Response.error("Testing user not correct"));
-    }
+//    @ExceptionHandler(UserNotFoundException.class)
+//    public ResponseEntity<Response<Void>> handleWebException (UserNotFoundException e) {
+//        return ResponseEntity
+//                .status(e.getHttpStatus())
+//                .body(Response.error("Testing user not correct"));
+//    }
 
 
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
