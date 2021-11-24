@@ -9,7 +9,7 @@ import javax.validation.constraints.Size;
 
 @Data
 @NoArgsConstructor
-//@AllArgsConstructor
+@AllArgsConstructor
 public class SignupUserRequestDTO {
     @NotNull
     private String fullName;

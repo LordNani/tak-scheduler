@@ -32,7 +32,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                         "/api/users/sign-in",
                         "/api/test/**",//toRemove
                         "/api/users/sign-up",
-                        "/h2-console/**").permitAll()
+                        "/h2-console/**",
+                        "/swagger.html",
+                        "/v3/api-docs/**").permitAll()
                 .antMatchers("/api/roles/**").hasRole(ADMIN)
                 .anyRequest().authenticated()
                 .and()
