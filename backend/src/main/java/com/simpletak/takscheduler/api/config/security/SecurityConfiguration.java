@@ -33,6 +33,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                         "/api/test/**",//toRemove
                         "/api/users/sign-up",
                         "/h2-console/**",
+                        "/view/**",
                         "/swagger.html",
                         "/v3/api-docs/**").permitAll()
                 .antMatchers("/api/roles/**").hasRole(ADMIN)
