@@ -11,6 +11,7 @@ import com.simpletak.takscheduler.model.user.UserEntity;
 import com.simpletak.takscheduler.repository.user.UserRepository;
 import com.simpletak.takscheduler.repository.user.role.RoleEntityRepository;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -102,5 +103,27 @@ public class UserService {
 
     public UserEntity findByLogin(String username) {
         return userRepository.findUserEntityByUsername(username).orElseThrow(UserNotFoundException::new);
+    }
+
+    public boolean adminExists(){
+        return userRepository.existsByRoleEntity_Name("ROLE_ADMIN");
+    }
+
+    public SignupUserRequestDTO createAdmin(){
+        String username = RandomStringUtils.random(8, true, false);
+        String password = RandomStringUtils.random(20, true, true);
+        String name = "ADMIN";
+
+        RoleEntity userRole = roleEntityRepository.findByName("ROLE_ADMIN").orElseThrow(RoleNotFoundException::new);
+        UserEntity userToSave = UserEntity
+                .builder()
+                .username(username)
+                .fullName(name)
+                .roleEntity(userRole)
+                .password(generateHashedPassword(password))
+                .build();
+
+        userRepository.saveAndFlush(userToSave);
+        return new SignupUserRequestDTO(name, username, password);
     }
 }
