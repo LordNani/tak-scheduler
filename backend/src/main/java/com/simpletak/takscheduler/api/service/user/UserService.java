@@ -105,13 +105,13 @@ public class UserService {
         return userRepository.findUserEntityByUsername(username).orElseThrow(UserNotFoundException::new);
     }
 
-    public boolean adminExists(){
+    public Boolean adminExists(){
         return userRepository.existsByRoleEntity_Name("ROLE_ADMIN");
     }
 
     public SignupUserRequestDTO createAdmin(){
-        String username = RandomStringUtils.random(8, true, false);
-        String password = RandomStringUtils.random(20, true, true);
+        String username = "adminadmin";
+        String password = "adminadmin";
         String name = "ADMIN";
 
         RoleEntity userRole = roleEntityRepository.findByName("ROLE_ADMIN").orElseThrow(RoleNotFoundException::new);
