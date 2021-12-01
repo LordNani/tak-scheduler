@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
+import java.util.UUID;
 
 @Component
 @Log
@@ -17,11 +18,12 @@ public class JwtProviderImpl implements JwtProvider {
     @Value("$(jwt.secret)")
     private String jwtSecret;
 
-    public String generateToken(String login, String role) {
+    public String generateToken(String login, String role, UUID id) {
         Date date = Date.from(LocalDate.now().plusDays(15).atStartOfDay(ZoneId.systemDefault()).toInstant());
 
         Claims claims = Jwts.claims().setSubject(login);
         claims.put("role", role);
+        claims.put("id", id);
         return Jwts.builder()
                 .setClaims(claims)
                 .setExpiration(date)
@@ -50,5 +52,11 @@ public class JwtProviderImpl implements JwtProvider {
     public String getLoginFromToken(String token) {
         Claims claims = Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody();
         return claims.getSubject();
+    }
+
+    @Override
+    public UUID getUserIdFromToken(String token) {
+        Claims claims = Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody();
+        return (UUID) claims.get("id");
     }
 }

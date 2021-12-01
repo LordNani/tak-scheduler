@@ -51,3 +51,12 @@ window.onload = () =>{
         sessionStorage.setItem("token", token)
     }
 }
+
+XMLHttpRequest.prototype.open = (function(open) {
+    return function(method,url,async) {
+        open.apply(this,arguments);
+        if(sessionStorage.getItem("token") != null){
+            this.setRequestHeader('Authorization', sessionStorage.getItem("token"));
+        }
+    };
+})(XMLHttpRequest.prototype.open);

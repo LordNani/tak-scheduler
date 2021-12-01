@@ -43,8 +43,8 @@ public class UserService {
                     .password(generateHashedPassword(signupUserRequestDTO.getPassword()))
                     .build();
 
-            userRepository.saveAndFlush(userToSave);
-            String token = jwtProviderImpl.generateToken(userToSave.getUsername(), userToSave.getRoleEntity().getName());
+            UserEntity saved = userRepository.saveAndFlush(userToSave);
+            String token = jwtProviderImpl.generateToken(userToSave.getUsername(), userToSave.getRoleEntity().getName(), saved.getId());
             return new SignupUserResponseDTO(new AuthTokenDTO(token), getUser(userToSave.getId()));
         }
     }
@@ -56,7 +56,7 @@ public class UserService {
         String dbPassword = existingUser.getPassword();
 
         if (passwordEncoder.matches(inputPassword, dbPassword)) {
-            String token = jwtProviderImpl.generateToken(userEntity.getUsername(), existingUser.getRoleEntity().getName());
+            String token = jwtProviderImpl.generateToken(userEntity.getUsername(), existingUser.getRoleEntity().getName(), existingUser.getId());
             return new AuthTokenDTO(token);
         } else {
             throw new PasswordIsIncorrectException();
