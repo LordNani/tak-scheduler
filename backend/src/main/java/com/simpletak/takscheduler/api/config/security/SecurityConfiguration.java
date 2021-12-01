@@ -34,6 +34,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                         "/api/users/sign-up",
                         "/h2-console/**",
                         "/view/**",
+                        "/css_js/**",
+                        "/webjars/**",
                         "/swagger.html",
                         "/v3/api-docs/**").permitAll()
                 .antMatchers("/api/roles/**").hasRole(ADMIN)

@@ -44,7 +44,8 @@ public class UserService {
                     .build();
 
             userRepository.saveAndFlush(userToSave);
-            return new SignupUserResponseDTO(null, getUser(userToSave.getId()));
+            String token = jwtProviderImpl.generateToken(userToSave.getUsername(), userToSave.getRoleEntity().getName());
+            return new SignupUserResponseDTO(new AuthTokenDTO(token), getUser(userToSave.getId()));
         }
     }
 
