@@ -57,6 +57,6 @@ public class JwtProviderImpl implements JwtProvider {
     @Override
     public UUID getUserIdFromToken(String token) {
         Claims claims = Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody();
-        return (UUID) claims.get("id");
+        return  UUID.fromString((String)claims.get("id"));
     }
 }

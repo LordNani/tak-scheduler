@@ -17,6 +17,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     public static final String ADMIN = "ADMIN";
     public static final String USER = "USER";
     private final JwtFilter jwtFilter;
+    private final CookieFilter cookieFilter;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -45,6 +46,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .requestCache(new NullRequestCache())
                 .and()
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(cookieFilter, JwtFilter.class)
                 .headers().frameOptions().disable();
     }
 }

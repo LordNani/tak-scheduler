@@ -9,6 +9,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -16,7 +17,6 @@ import java.util.UUID;
 
 @Controller
 @RequestMapping("/view")
-@PreAuthorize("isAuthenticated()")
 public class MainController {
     private final UserService userService;
 
@@ -26,23 +26,22 @@ public class MainController {
     }
 
     @GetMapping
-    public String index(Model model){
+    public String index(Model model) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        try {
+        if (authentication.getDetails() instanceof UUID) {
             UserInfoResponseDTO user = userService.getUser((UUID) authentication.getDetails());
             String name = user.getFullName();
             model.addAttribute("name", name);
             return "index";
-        }
-        catch (Exception e){
+        } else {
             return "auth";
         }
     }
 
     @GetMapping("/event-groups")
-    public String eventGroups(){
+    public String eventGroups() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if(!authentication.isAuthenticated()) return "auth";
+        if (!authentication.isAuthenticated()) return "auth";
         return "event-groups";
     }
 }

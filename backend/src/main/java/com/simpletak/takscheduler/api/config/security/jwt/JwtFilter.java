@@ -1,11 +1,14 @@
 package com.simpletak.takscheduler.api.config.security.jwt;
 
+import com.simpletak.takscheduler.api.exception.user.UserNotFoundException;
 import com.simpletak.takscheduler.api.model.user.CustomUserDetails;
 import com.simpletak.takscheduler.api.service.authentication.UserDetailsServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.GenericFilterBean;
 
@@ -37,20 +40,29 @@ public class JwtFilter extends GenericFilterBean {
         HttpServletResponse httpServletResponse = (HttpServletResponse) servletResponse;
 
         String token = getTokenFromRequest(httpServletRequest);
+        processJwtToken(token, jwtProvider, customUserDetailsService);
+        filterChain.doFilter(httpServletRequest, httpServletResponse);
+    }
+
+    public static void processJwtToken(String token, JwtProvider jwtProvider, UserDetailsServiceImpl userDetailsService) {
         if (token != null && jwtProvider.validateToken(token)) {
             String userLogin = jwtProvider.getLoginFromToken(token);
-            CustomUserDetails customUserDetails = customUserDetailsService.loadUserByUsername(userLogin);
-            System.out.println("getAuthorities: " + customUserDetails.getAuthorities());
-            UsernamePasswordAuthenticationToken auth =
-                    new UsernamePasswordAuthenticationToken(
-                            customUserDetails,
-                            null,
-                            customUserDetails.getAuthorities()
-                    );
-            auth.setDetails(jwtProvider.getUserIdFromToken(token));
-            SecurityContextHolder.getContext().setAuthentication(auth);
+            try {
+                CustomUserDetails customUserDetails = userDetailsService.loadUserByUsername(userLogin);
+                System.out.println("getAuthorities: " + customUserDetails.getAuthorities());
+                UsernamePasswordAuthenticationToken auth =
+                        new UsernamePasswordAuthenticationToken(
+                                customUserDetails,
+                                null,
+                                customUserDetails.getAuthorities()
+                        );
+                auth.setDetails(jwtProvider.getUserIdFromToken(token));
+                SecurityContextHolder.getContext().setAuthentication(auth);
+            }
+            catch (UserNotFoundException e){
+                e.printStackTrace();
+            }
         }
-        filterChain.doFilter(httpServletRequest, httpServletResponse);
     }
 
     private String getTokenFromRequest(HttpServletRequest request) {

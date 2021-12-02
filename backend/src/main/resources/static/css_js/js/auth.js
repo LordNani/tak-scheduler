@@ -18,7 +18,14 @@ window.onload = () =>{
         })
             .then(async res => {
                 const data = await res.json()
-                saveToken(data.data.tokenDTO.token)
+                if(res.ok) {
+                    saveToken(data.data.tokenDTO.token)
+                }
+                else{
+                    if(data.password != null) alert("Password: "+data.password)
+                    if(data.username != null) alert("Username: "+data.username)
+                    if(data.message != null) alert(data.message)
+                }
             }).catch(err => {
             console.log(err)
         })
@@ -41,22 +48,31 @@ window.onload = () =>{
         })
             .then(async res => {
                 const data = await res.json()
-                saveToken(data.data.token)
+                if(res.ok) {
+                    saveToken(data.data.token)
+                }
+                else{
+                    if(data.password != null) alert("Password: "+data.password)
+                    if(data.username != null) alert("Username: "+data.username)
+                    if(data.message != null) alert(data.message)
+                }
             }).catch(err => {
             console.log(err)
         })
     })
 
     function saveToken(token){
+        document.cookie=`token=${token}`
         sessionStorage.setItem("token", token)
+        document.location = "/view"
     }
 }
-
-XMLHttpRequest.prototype.open = (function(open) {
-    return function(method,url,async) {
-        open.apply(this,arguments);
-        if(sessionStorage.getItem("token") != null){
-            this.setRequestHeader('Authorization', sessionStorage.getItem("token"));
-        }
-    };
-})(XMLHttpRequest.prototype.open);
+//
+// XMLHttpRequest.prototype.open = (function(open) {
+//     return function(method,url,async) {
+//         open.apply(this,arguments);
+//         if(sessionStorage.getItem("token") != null){
+//             this.setRequestHeader('Authorization', sessionStorage.getItem("token"));
+//         }
+//     };
+// })(XMLHttpRequest.prototype.open);

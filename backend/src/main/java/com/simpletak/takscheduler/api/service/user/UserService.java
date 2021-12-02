@@ -111,7 +111,7 @@ public class UserService {
     }
 
     public SignupUserRequestDTO createAdmin(){
-        String username = RandomStringUtils.random(8, true, false);
+        String username = "admin123";
         String password = RandomStringUtils.random(20, true, true);
         String name = "ADMIN";
 
