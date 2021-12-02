@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -52,6 +53,7 @@ public class UserController {
                     content = @Content)
     })
     @Operation(summary = "User's personal info edit")
+    @PreAuthorize("permitAll()")
     @PostMapping
     public Response<EditUserResponseDTO> editUser(@Valid @RequestBody EditUserRequestDTO editUserRequestDTO){
         return Response.success(userService.editUser(editUserRequestDTO));

@@ -41,7 +41,25 @@ public class MainController {
     @GetMapping("/event-groups")
     public String eventGroups() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (!authentication.isAuthenticated()) return "auth";
-        return "event-groups";
+        if (authentication.getDetails() instanceof UUID) {
+            return "event-groups";
+        } else {
+            return "auth";
+        }
     }
+
+    @GetMapping("/profile")
+    public String profile(Model model){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication.getDetails() instanceof UUID) {
+            UserInfoResponseDTO user = userService.getUser((UUID) authentication.getDetails());
+            model.addAttribute("fullName", user.getFullName());
+            model.addAttribute("username", user.getUsername());
+            model.addAttribute("id", user.getId());
+            return "profile";
+        } else {
+            return "auth";
+        }
+    }
+
 }
