@@ -43,7 +43,8 @@ public class UserController {
     @Operation(summary = "Sign in for existing user", description = "This operation should return JWT token to use in every other request, but this functionality is not implemented yet")
     @PostMapping("/sign-in")
     public Response<AuthTokenDTO> signin(@Valid @RequestBody SigninUserRequestDTO signinUserRequestDTO){
-        return Response.success(userService.signinUser(signinUserRequestDTO));
+        AuthTokenDTO authTokenDTO = userService.signinUser(signinUserRequestDTO);
+        return Response.success(authTokenDTO);
     }
 
     @ApiResponses(value = {

@@ -44,7 +44,7 @@ public class ApplicationListenerInitialize implements ApplicationListener<Applic
         if(userRole.isEmpty()) roleService.createRole(new RoleDTO(null, "ROLE_USER"));
         if(adminRole.isEmpty()) roleService.createRole(new RoleDTO(null, "ROLE_ADMIN"));
 
-        if(!userService.adminExists()){
+        if(Boolean.FALSE.equals(userService.adminExists())){
             var admin = userService.createAdmin();
             logger.info(String.format("Created admin with credentials: \nusername: %s\npassword: %s",
                     admin.getUsername(), admin.getPassword()));
