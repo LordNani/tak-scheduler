@@ -6,12 +6,11 @@ import com.simpletak.takscheduler.api.exception.user.PasswordIsIncorrectExceptio
 import com.simpletak.takscheduler.api.exception.user.SuchUserAlreadyExistsException;
 import com.simpletak.takscheduler.api.exception.user.UserNotFoundException;
 import com.simpletak.takscheduler.api.exception.user.role.RoleNotFoundException;
-import com.simpletak.takscheduler.api.model.user.role.RoleEntity;
 import com.simpletak.takscheduler.api.model.user.UserEntity;
+import com.simpletak.takscheduler.api.model.user.role.RoleEntity;
 import com.simpletak.takscheduler.api.repository.user.UserRepository;
 import com.simpletak.takscheduler.api.repository.user.role.RoleEntityRepository;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -126,4 +125,23 @@ public class UserService {
         userRepository.saveAndFlush(userToSave);
         return new SignupUserRequestDTO(name, username, password);
     }
+
+    public UserEntity createAdminEntity(){
+        String username = "adminadmin";
+        String password = "adminadmin";
+        String name = "ADMIN";
+
+        RoleEntity userRole = roleEntityRepository.findByName("ROLE_ADMIN").orElseThrow(RoleNotFoundException::new);
+        UserEntity userToSave = UserEntity
+                .builder()
+                .username(username)
+                .fullName(name)
+                .roleEntity(userRole)
+                .password(generateHashedPassword(password))
+                .build();
+
+        userRepository.saveAndFlush(userToSave);
+        return userToSave;
+    }
+
 }

@@ -1,12 +1,15 @@
 package com.simpletak.takscheduler.api.config;
 
 
+import com.simpletak.takscheduler.api.dto.eventGroup.NewEventGroupDTO;
 import com.simpletak.takscheduler.api.dto.user.role.RoleDTO;
+import com.simpletak.takscheduler.api.model.user.UserEntity;
+import com.simpletak.takscheduler.api.service.eventgroup.EventGroupService;
 import com.simpletak.takscheduler.api.service.user.UserService;
 import com.simpletak.takscheduler.api.service.user.role.RoleService;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -17,20 +20,15 @@ import java.util.Objects;
 import java.util.Optional;
 
 @Component
+@RequiredArgsConstructor
 public class ApplicationListenerInitialize implements ApplicationListener<ApplicationReadyEvent> {
 
     private final RoleService roleService;
     private final UserService userService;
+    private final EventGroupService eventGroupService;
     private final PasswordEncoder passwordEncoder;
 
     private static final Logger logger = LoggerFactory.getLogger(ApplicationListenerInitialize.class);
-
-    @Autowired
-    public ApplicationListenerInitialize(RoleService roleService, UserService userService, PasswordEncoder passwordEncoder) {
-        this.roleService = roleService;
-        this.userService = userService;
-        this.passwordEncoder = passwordEncoder;
-    }
 
 
     public void onApplicationEvent(ApplicationReadyEvent event) {
@@ -45,9 +43,19 @@ public class ApplicationListenerInitialize implements ApplicationListener<Applic
         if(adminRole.isEmpty()) roleService.createRole(new RoleDTO(null, "ROLE_ADMIN"));
 
         if(Boolean.FALSE.equals(userService.adminExists())){
-            var admin = userService.createAdmin();
+            UserEntity admin = userService.createAdminEntity();
             logger.info(String.format("Created admin with credentials: \nusername: %s\npassword: %s",
                     admin.getUsername(), admin.getPassword()));
+
+            for (int i = 0; i < 15; i++) {
+                eventGroupService.createEventGroup(NewEventGroupDTO.builder()
+                        .eventName("name" + i)
+                        .eventGroupDescription("descr" + i)
+                        .ownerId(admin.getId())
+                        .build()
+                );
+            }
+
         }
 
         logger.info("Checked existence of admin, user roles");

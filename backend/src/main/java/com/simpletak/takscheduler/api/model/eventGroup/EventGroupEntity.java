@@ -14,7 +14,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Getter
 @Setter
-
+@ToString
 @Entity
 @Table(name = "event_group")
 public class EventGroupEntity {
