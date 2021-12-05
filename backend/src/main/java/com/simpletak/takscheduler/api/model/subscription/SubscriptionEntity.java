@@ -14,8 +14,6 @@ import java.util.UUID;
 @NoArgsConstructor
 @Getter
 @Setter
-
-
 @Entity
 @Table(name = "subscription")
 public class SubscriptionEntity {
@@ -36,4 +34,9 @@ public class SubscriptionEntity {
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REFRESH)
     @JoinColumn(name="user_id", nullable = false)
     private UserEntity userEntity;
+
+    public SubscriptionEntity(EventGroupEntity eventGroupEntity, UserEntity userEntity) {
+        this.eventGroupEntity = eventGroupEntity;
+        this.userEntity = userEntity;
+    }
 }
