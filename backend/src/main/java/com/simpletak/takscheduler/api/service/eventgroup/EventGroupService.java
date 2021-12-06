@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -40,5 +41,9 @@ public class EventGroupService {
         catch (EmptyResultDataAccessException e){
             throw new EventGroupNotFoundException();
         }
+    }
+
+    public List<EventGroupDTO> getEventGroupsByTags(List<UUID> tags) {
+        return List.of();
     }
 }

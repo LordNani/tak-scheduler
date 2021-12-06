@@ -8,5 +8,4 @@ import java.util.UUID;
 
 @Repository
 public interface TagEventGroupRepository extends JpaRepository<TagEventGroupEntity, UUID> {
-
 }

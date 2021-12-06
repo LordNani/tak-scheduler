@@ -112,7 +112,8 @@ public class UserService {
 
     public SignupUserRequestDTO createAdmin(){
         String username = "admin123";
-        String password = RandomStringUtils.random(20, true, true);
+//        String password = RandomStringUtils.random(20, true, true);
+        String password = "password";
         String name = "ADMIN";
 
         RoleEntity userRole = roleEntityRepository.findByName("ROLE_ADMIN").orElseThrow(RoleNotFoundException::new);

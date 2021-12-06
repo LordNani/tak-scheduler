@@ -35,5 +35,5 @@ public class TagEventGroupEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="tag_id", nullable = false)
-    private TagEntity chat;
+    private TagEntity tag;
 }
