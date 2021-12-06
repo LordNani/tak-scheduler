@@ -6,18 +6,21 @@ import com.simpletak.takscheduler.api.dto.eventGroup.NewEventGroupDTO;
 import com.simpletak.takscheduler.api.exception.eventgroup.EventGroupNotFoundException;
 import com.simpletak.takscheduler.api.model.eventGroup.EventGroupEntity;
 import com.simpletak.takscheduler.api.repository.eventGroup.EventGroupRepository;
+import com.simpletak.takscheduler.api.repository.tagEventGroup.TagEventGroupRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class EventGroupService {
     private final EventGroupRepository eventGroupRepository;
     private final EventGroupMapper mapper;
+    private final TagEventGroupRepository tagEventGroupRepository;
 
     public EventGroupDTO findEventGroupById(UUID id) {
         return mapper.fromEntity(eventGroupRepository.findById(id).orElseThrow(EventGroupNotFoundException::new));
@@ -44,6 +47,10 @@ public class EventGroupService {
     }
 
     public List<EventGroupDTO> getEventGroupsByTags(List<UUID> tags) {
-        return List.of();
+        var eventGroups = tagEventGroupRepository.getEventGroupIdsByAllTagIds(
+                tags.stream().map(UUID::toString).collect(Collectors.toList()));
+        return eventGroupRepository.findAllById(eventGroups).stream()
+                .map(mapper::fromEntity)
+                .collect(Collectors.toList());
     }
 }
