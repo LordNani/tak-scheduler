@@ -1,5 +1,6 @@
 package com.simpletak.takscheduler.api.service.user;
 
+import com.simpletak.takscheduler.api.config.security.jwt.JwtProvider;
 import com.simpletak.takscheduler.api.config.security.jwt.JwtProviderImpl;
 import com.simpletak.takscheduler.api.dto.user.*;
 import com.simpletak.takscheduler.api.exception.user.PasswordIsIncorrectException;
@@ -24,7 +25,7 @@ import java.util.UUID;
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JwtProviderImpl jwtProviderImpl;
+    private final JwtProvider jwtProvider;
     private final RoleEntityRepository roleEntityRepository;
 
     @Transactional
@@ -44,7 +45,7 @@ public class UserService {
                     .build();
 
             UserEntity saved = userRepository.saveAndFlush(userToSave);
-            String token = jwtProviderImpl.generateToken(userToSave.getUsername(), userToSave.getRoleEntity().getName(), saved.getId());
+            String token = jwtProvider.generateToken(userToSave.getUsername(), userToSave.getRoleEntity().getName(), saved.getId());
             return new SignupUserResponseDTO(new AuthTokenDTO(token), getUser(userToSave.getId()));
         }
     }
@@ -56,7 +57,7 @@ public class UserService {
         String dbPassword = existingUser.getPassword();
 
         if (passwordEncoder.matches(inputPassword, dbPassword)) {
-            String token = jwtProviderImpl.generateToken(userEntity.getUsername(), existingUser.getRoleEntity().getName(), existingUser.getId());
+            String token = jwtProvider.generateToken(userEntity.getUsername(), existingUser.getRoleEntity().getName(), existingUser.getId());
             return new AuthTokenDTO(token);
         } else {
             throw new PasswordIsIncorrectException();
