@@ -58,10 +58,10 @@ public class JwtFilter extends GenericFilterBean {
                         );
                 auth.setDetails(jwtProvider.getUserIdFromToken(token));
                 SecurityContextHolder.getContext().setAuthentication(auth);
-            }
-            catch (UserNotFoundException e){
+            } catch (UserNotFoundException e) {
                 e.printStackTrace();
             }
+        }
     }
 
     private String getTokenFromRequest(HttpServletRequest request) {
