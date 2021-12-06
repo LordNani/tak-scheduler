@@ -62,7 +62,6 @@ public class JwtFilter extends GenericFilterBean {
             catch (UserNotFoundException e){
                 e.printStackTrace();
             }
-        }
     }
 
     private String getTokenFromRequest(HttpServletRequest request) {

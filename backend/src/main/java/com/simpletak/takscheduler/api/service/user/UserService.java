@@ -106,7 +106,7 @@ public class UserService {
         return userRepository.findUserEntityByUsername(username).orElseThrow(UserNotFoundException::new);
     }
 
-    public boolean adminExists(){
+    public Boolean adminExists(){
         return userRepository.existsByRoleEntity_Name("ROLE_ADMIN");
     }
 
