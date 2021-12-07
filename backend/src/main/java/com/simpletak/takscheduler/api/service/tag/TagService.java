@@ -6,12 +6,14 @@ import com.simpletak.takscheduler.api.exception.tag.TagAlreadyExistsException;
 import com.simpletak.takscheduler.api.exception.tag.TagNotFoundException;
 import com.simpletak.takscheduler.api.model.tag.TagEntity;
 import com.simpletak.takscheduler.api.repository.tag.TagRepository;
+import com.simpletak.takscheduler.api.repository.tagEventGroup.TagEventGroupRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
 
 import static java.util.Objects.isNull;
@@ -20,10 +22,12 @@ import static java.util.Objects.isNull;
 public class TagService {
 
     private final TagRepository tagRepository;
+    private final TagEventGroupRepository tagEventGroupRepository;
 
     @Autowired
-    public TagService(TagRepository tagRepository){
+    public TagService(TagRepository tagRepository, TagEventGroupRepository tagEventGroupRepository){
         this.tagRepository = tagRepository;
+        this.tagEventGroupRepository = tagEventGroupRepository;
     }
 
     public TagResponseDTO createTag(TagRequestDTO tagRequestDTO){
@@ -58,7 +62,7 @@ public class TagService {
 
     public void deleteById(UUID tagId){
         if(!tagRepository.existsById(tagId)) throw new TagNotFoundException();
-
+        tagEventGroupRepository.deleteAllByTag_Id(tagId);
         tagRepository.deleteById(tagId);
     }
 
@@ -81,5 +85,9 @@ public class TagService {
         Page<TagEntity> productPage =
                 tagRepository.findAll(pageable);
         return productPage;
+    }
+
+    public List<TagEntity> getAllTags() {
+        return tagRepository.findAll();
     }
 }

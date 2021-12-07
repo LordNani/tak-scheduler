@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Main page</title>
+    <div th:replace="fragments/header :: header-links" />
+</head>
+<body>
+<div th:replace="fragments/header :: header"/>
+<div>
+    Hello, <span th:text="${name}"></span>
+</div>
+</body>
+</html>

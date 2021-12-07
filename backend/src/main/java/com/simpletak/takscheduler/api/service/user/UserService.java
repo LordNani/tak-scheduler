@@ -1,5 +1,6 @@
 package com.simpletak.takscheduler.api.service.user;
 
+import com.simpletak.takscheduler.api.config.security.jwt.JwtProvider;
 import com.simpletak.takscheduler.api.config.security.jwt.JwtProviderImpl;
 import com.simpletak.takscheduler.api.dto.user.*;
 import com.simpletak.takscheduler.api.exception.user.PasswordIsIncorrectException;
@@ -24,7 +25,7 @@ import java.util.UUID;
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JwtProviderImpl jwtProviderImpl;
+    private final JwtProvider jwtProvider;
     private final RoleEntityRepository roleEntityRepository;
 
     @Transactional
@@ -43,8 +44,9 @@ public class UserService {
                     .password(generateHashedPassword(signupUserRequestDTO.getPassword()))
                     .build();
 
-            userRepository.saveAndFlush(userToSave);
-            return new SignupUserResponseDTO(null, getUser(userToSave.getId()));
+            UserEntity saved = userRepository.saveAndFlush(userToSave);
+            String token = jwtProvider.generateToken(userToSave.getUsername(), userToSave.getRoleEntity().getName(), saved.getId());
+            return new SignupUserResponseDTO(new AuthTokenDTO(token), getUser(userToSave.getId()));
         }
     }
 
@@ -55,7 +57,7 @@ public class UserService {
         String dbPassword = existingUser.getPassword();
 
         if (passwordEncoder.matches(inputPassword, dbPassword)) {
-            String token = jwtProviderImpl.generateToken(userEntity.getUsername(), existingUser.getRoleEntity().getName());
+            String token = jwtProvider.generateToken(userEntity.getUsername(), existingUser.getRoleEntity().getName(), existingUser.getId());
             return new AuthTokenDTO(token);
         } else {
             throw new PasswordIsIncorrectException();
@@ -110,8 +112,9 @@ public class UserService {
     }
 
     public SignupUserRequestDTO createAdmin(){
-        String username = "adminadmin";
-        String password = "adminadmin";
+        String username = "admin123";
+//        String password = RandomStringUtils.random(20, true, true);
+        String password = "password";
         String name = "ADMIN";
 
         RoleEntity userRole = roleEntityRepository.findByName("ROLE_ADMIN").orElseThrow(RoleNotFoundException::new);

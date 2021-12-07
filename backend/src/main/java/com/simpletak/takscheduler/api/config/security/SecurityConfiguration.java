@@ -17,13 +17,13 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     public static final String ADMIN = "ADMIN";
     public static final String USER = "USER";
     private final JwtFilter jwtFilter;
+    private final CookieFilter cookieFilter;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .cors()
                 .and()
-                .httpBasic().disable()
                 .csrf().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
@@ -34,6 +34,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                         "/api/users/sign-up",
                         "/h2-console/**",
                         "/view/**",
+                        "/css_js/**",
+                        "/webjars/**",
                         "/swagger.html",
                         "/v3/api-docs/**").permitAll()
                 .antMatchers("/api/roles/**").hasRole(ADMIN)
@@ -43,6 +45,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .requestCache(new NullRequestCache())
                 .and()
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(cookieFilter, JwtFilter.class)
                 .headers().frameOptions().disable();
     }
 }
