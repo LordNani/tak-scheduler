@@ -4,7 +4,9 @@ import com.simpletak.takscheduler.api.config.Response;
 import com.simpletak.takscheduler.api.dto.eventGroup.EventGroupDTO;
 import com.simpletak.takscheduler.api.dto.eventGroup.NewEventGroupDTO;
 import com.simpletak.takscheduler.api.service.eventgroup.EventGroupService;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -35,5 +37,14 @@ public class EventGroupController {
     @DeleteMapping("/{id}")
     public void deleteEventGroup(@PathVariable("id") UUID id) {
         eventGroupService.deleteEventGroup(id);
+    }
+
+
+    @Operation(summary = "Receive user's event groups with pagination")
+    @GetMapping
+    public Response<Page<EventGroupDTO>> getEventGroupsByUser(@Valid @RequestParam UUID userId,
+                                                              @RequestParam int page,
+                                                              @RequestParam int size){
+        return Response.success(eventGroupService.getEventGroupsByUser(userId, page, size));
     }
 }
