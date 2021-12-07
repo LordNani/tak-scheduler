@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Event groups</title>
+    <div th:replace="fragments/header :: header-links" />
+</head>
+<body>
+<div th:replace="fragments/header :: header" />
+<div class="root">
+    <div class="search">
+        <form th:action="@{/view/search/by-tags}" method="get">
+            <div class="checkbox" th:each="tag : ${allTags}">
+                <label>
+                    <input type="checkbox" id="tagName" name="tags"
+                           th:text="${tag.tagName}" th:value="${tag.id}" />
+<!--                    <input type="hidden" id="tagId" name="tagId"  />-->
+                </label>
+            </div>
+            <div>
+                <p>
+                    <button type="submit" class="btn btn-default">Save</button>
+                </p>
+            </div>
+        </form>
+    </div>
+    <div class="event-group-list">
+        <div class="event-group-item" th:each="eventGroup : ${eventGroups}">
+            <p th:text="${eventGroup.eventName}"></p>
+        </div>
+    </div>
+</div>
+</body>
+</html>

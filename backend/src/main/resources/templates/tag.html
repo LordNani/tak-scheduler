@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Tags</title>
+
+    <div th:replace="fragments/header :: header-links"/>
+</head>
+<body>
+    <div th:replace="fragments/header :: header"/>
+    <h2>Tags:</h2>
+    <div class="tag-container">
+        <div th:each="tag : ${allTags}" class="tag-item">
+            <p th:text="${tag.tagName}" />
+            <button type="button" th:text="Delete" th:value="${tag.id}" onclick="deleteItem(this.value)"/>
+        </div>
+    </div>
+
+<script>
+    function deleteItem(tagId){
+        fetch(`/api/tags/${tagId}`, {
+            method: "DELETE",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorisation': sessionStorage.getItem("token")
+            }
+        }).then(
+            () => window.location='/view/tag'
+        )
+    }
+</script>
+</body>
+</html>

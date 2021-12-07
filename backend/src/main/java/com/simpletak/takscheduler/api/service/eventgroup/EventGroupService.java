@@ -9,6 +9,7 @@ import com.simpletak.takscheduler.api.model.eventGroup.EventGroupEntity;
 import com.simpletak.takscheduler.api.model.user.UserEntity;
 import com.simpletak.takscheduler.api.repository.eventGroup.EventGroupRepository;
 import com.simpletak.takscheduler.api.repository.eventGroup.EventGroupRepositoryPagingAndSorting;
+import com.simpletak.takscheduler.api.repository.tagEventGroup.TagEventGroupRepository;
 import com.simpletak.takscheduler.api.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -17,7 +18,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +29,7 @@ public class EventGroupService {
     private final EventGroupRepositoryPagingAndSorting eventGroupRepositoryPagingAndSorting;
     private final UserRepository userRepository;
     private final EventGroupMapper mapper;
+    private final TagEventGroupRepository tagEventGroupRepository;
 
     public EventGroupDTO findEventGroupById(UUID id) {
         return mapper.fromEntity(eventGroupRepository.findById(id).orElseThrow(EventGroupNotFoundException::new));
@@ -49,6 +53,14 @@ public class EventGroupService {
         catch (EmptyResultDataAccessException e){
             throw new EventGroupNotFoundException();
         }
+    }
+
+    public List<EventGroupDTO> getEventGroupsByTags(List<UUID> tags) {
+        var eventGroups = tagEventGroupRepository.getEventGroupIdsByAllTagIds(
+                tags.stream().map(UUID::toString).collect(Collectors.toList()));
+        return eventGroupRepository.findAllById(eventGroups).stream()
+                .map(mapper::fromEntity)
+                .collect(Collectors.toList());
     }
 
     public Page<EventGroupDTO> getEventGroupsByUser(UUID userId, int page, int size) {
