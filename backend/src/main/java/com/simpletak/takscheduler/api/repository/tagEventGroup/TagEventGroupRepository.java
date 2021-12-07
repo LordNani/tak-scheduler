@@ -18,4 +18,6 @@ public interface TagEventGroupRepository extends JpaRepository<TagEventGroupEnti
             "   HAVING COUNT(teg1.tag_id) = " +
             "(SELECT COUNT(id) FROM (SELECT * FROM tag WHERE id IN :tags) AS t2);", nativeQuery = true)
     public List<UUID> getEventGroupIdsByAllTagIds(List<String> tags);
+
+    public void deleteAllByTag_Id(UUID tagId);
 }

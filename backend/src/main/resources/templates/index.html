@@ -8,12 +8,7 @@
 <body>
 <div th:replace="fragments/header :: header"/>
 <div>
-    <div class="menu-item event-group">
-        <a href="/view/event-groups">Event groups</a>
-    </div>
-    <div class="menu-item profile">
-        <a href="/view/profile">Hello, <span th:text="${name}"></span></a>
-    </div>
+    Hello, <span th:text="${name}"></span>
 </div>
 </body>
 </html>

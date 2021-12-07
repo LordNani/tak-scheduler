@@ -84,6 +84,19 @@ public class MainController {
         }
     }
 
+    @GetMapping("/tag")
+    public String tags(Model model){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication.getDetails() instanceof UUID) {
+            addRoleAttribute(model, authentication);
+            if(!(boolean)model.getAttribute("isAdmin")) return "index";
+            model.addAttribute("allTags", tagService.getAllTags());
+            return "tag";
+        } else {
+            return "auth";
+        }
+    }
+
 
     private void addEventGroupsAttributes(Model model, List<EventGroupDTO> eventGroupDTOS) {
         model.addAttribute("allTags", tagService.getAllTags());
