@@ -9,6 +9,7 @@ import com.simpletak.takscheduler.api.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -40,6 +41,7 @@ public class MainController {
             UserInfoResponseDTO user = userService.getUser((UUID) authentication.getDetails());
             String name = user.getFullName();
             model.addAttribute("name", name);
+            addRoleAttribute(model, authentication);
             return "index";
         } else {
             return "auth";
@@ -50,8 +52,8 @@ public class MainController {
     public String eventGroups(Model model) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication.getDetails() instanceof UUID) {
-            model.addAttribute("allTags", tagService.getAllTags());
-            model.addAttribute("eventGroups", List.of());
+            addEventGroupsAttributes(model, List.of());
+            addRoleAttribute(model, authentication);
             return "event-groups";
         } else {
             return "auth";
@@ -60,9 +62,10 @@ public class MainController {
 
     @GetMapping("/search/by-tags")
     public String eventGroupsByTags(@RequestParam("tags") List<UUID> tags, Model model){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         List<EventGroupDTO> eventGroupDTOList = eventGroupService.getEventGroupsByTags(tags);
-        model.addAttribute("allTags", tagService.getAllTags());
-        model.addAttribute("eventGroups", eventGroupDTOList);
+        addEventGroupsAttributes(model, eventGroupDTOList);
+        addRoleAttribute(model, authentication);
         return "event-groups";
     }
 
@@ -74,10 +77,21 @@ public class MainController {
             model.addAttribute("fullName", user.getFullName());
             model.addAttribute("username", user.getUsername());
             model.addAttribute("id", user.getId());
+            addRoleAttribute(model, authentication);
             return "profile";
         } else {
             return "auth";
         }
+    }
+
+
+    private void addEventGroupsAttributes(Model model, List<EventGroupDTO> eventGroupDTOS) {
+        model.addAttribute("allTags", tagService.getAllTags());
+        model.addAttribute("eventGroups", eventGroupDTOS);
+    }
+
+    private void addRoleAttribute(Model model, Authentication authentication) {
+        model.addAttribute("isAdmin", authentication.getAuthorities().toArray()[0].equals(new SimpleGrantedAuthority("ROLE_ADMIN")));
     }
 
 }

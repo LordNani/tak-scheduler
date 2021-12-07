@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <title>Event groups</title>
+    <div th:replace="fragments/header :: header-links" />
 </head>
 <body>
+<div th:replace="fragments/header :: header" />
 <div class="root">
     <div class="search">
         <form th:action="@{/view/search/by-tags}" method="get">

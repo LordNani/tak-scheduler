@@ -3,15 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <title>Main page</title>
+    <div th:replace="fragments/header :: header-links" />
 </head>
 <body>
-    <header>
-        <div class="menu-item event-group">
-            <a href="/view/event-groups">Event groups</a>
-        </div>
-        <div class="menu-item profile">
-            <a href="/view/profile">Hello, <span th:text="${name}"></span></a>
-        </div>
-    </header>
+<div th:replace="fragments/header :: header"/>
+<div>
+    <div class="menu-item event-group">
+        <a href="/view/event-groups">Event groups</a>
+    </div>
+    <div class="menu-item profile">
+        <a href="/view/profile">Hello, <span th:text="${name}"></span></a>
+    </div>
+</div>
 </body>
 </html>
