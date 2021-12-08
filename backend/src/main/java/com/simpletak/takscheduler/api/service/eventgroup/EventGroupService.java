@@ -13,6 +13,7 @@ import com.simpletak.takscheduler.api.repository.subscription.SubscriptionReposi
 import com.simpletak.takscheduler.api.repository.tagEventGroup.TagEventGroupRepository;
 import com.simpletak.takscheduler.api.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.java.Log;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -27,6 +28,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
+@Log
 @RequiredArgsConstructor
 public class EventGroupService {
     private final EventGroupRepository eventGroupRepository;
@@ -91,8 +93,11 @@ public class EventGroupService {
     }
 
     @Cacheable("eventGroups")
-    public Page<EventGroupDTO> getEventGroupsByUser(UUID userId, int page, int size) {
-        System.out.println("IN getEventGroups");
+    public Page<EventGroupDTO> getEventGroupsByUser(int page, int size) {
+        log.info("In getEventGroups");
+
+        UUID userId = (UUID) SecurityContextHolder.getContext().getAuthentication().getDetails();
+
         Pageable pageConfig = PageRequest.of(page, size);
         UserEntity user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
 

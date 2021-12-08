@@ -6,11 +6,13 @@ import com.simpletak.takscheduler.api.dto.event.NewEventDTO;
 import com.simpletak.takscheduler.api.exception.InvalidCronExpressionException;
 import com.simpletak.takscheduler.api.exception.event.EventNotFoundException;
 import com.simpletak.takscheduler.api.exception.eventgroup.EventGroupNotFoundException;
+import com.simpletak.takscheduler.api.exception.user.UserIsNotPermittedException;
 import com.simpletak.takscheduler.api.exception.user.UserNotFoundException;
 import com.simpletak.takscheduler.api.model.event.EventEntity;
 import com.simpletak.takscheduler.api.model.event.EventFreq;
 import com.simpletak.takscheduler.api.model.event.scheduling.EventSchedulingByCronDTO;
 import com.simpletak.takscheduler.api.model.event.scheduling.EventSchedulingByDateDTO;
+import com.simpletak.takscheduler.api.model.eventGroup.EventGroupEntity;
 import com.simpletak.takscheduler.api.repository.event.EventRepository;
 import com.simpletak.takscheduler.api.service.event.scheduling.EventRunnableTask;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +22,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.quartz.CronExpression;
 import org.springframework.scheduling.support.CronTrigger;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -43,7 +46,17 @@ public class EventService {
     }
 
     public EventDTO createEvent(NewEventDTO eventDTO) {
+        UUID userId = (UUID) SecurityContextHolder.getContext().getAuthentication().getDetails();
+
         EventEntity eventEntity = mapper.toEntity(new EventDTO(eventDTO, null));
+
+        EventGroupEntity eventGroupEntity = eventEntity.getEventGroup();
+        boolean isOwned = eventGroupEntity.getOwner().getId().equals(userId);
+
+        if (!isOwned) {
+            throw new UserIsNotPermittedException("You are not authorized to edit this event group.");
+        }
+
         return mapper.fromEntity(eventRepository.saveAndFlush(eventEntity));
     }
 
