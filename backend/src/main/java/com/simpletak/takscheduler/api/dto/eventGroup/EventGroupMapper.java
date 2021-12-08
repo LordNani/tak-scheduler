@@ -32,6 +32,11 @@ public class EventGroupMapper implements Mapper<EventGroupEntity, EventGroupDTO>
 
     @Override
     public EventGroupDTO fromEntity(EventGroupEntity entity) {
-        return new EventGroupDTO(entity.getEventName(), entity.getEventGroupDescription(), entity.getOwner().getId(), entity.getId());
+        return EventGroupDTO.builder()
+                .eventName(entity.getEventName())
+                .eventGroupDescription(entity.getEventGroupDescription())
+                .ownerId(entity.getOwner().getId())
+                .id(entity.getId())
+                .build();
     }
 }

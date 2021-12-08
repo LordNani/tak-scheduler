@@ -9,6 +9,7 @@ import com.simpletak.takscheduler.api.model.eventGroup.EventGroupEntity;
 import com.simpletak.takscheduler.api.model.user.UserEntity;
 import com.simpletak.takscheduler.api.repository.eventGroup.EventGroupRepository;
 import com.simpletak.takscheduler.api.repository.eventGroup.EventGroupRepositoryPagingAndSorting;
+import com.simpletak.takscheduler.api.repository.subscription.SubscriptionRepository;
 import com.simpletak.takscheduler.api.repository.tagEventGroup.TagEventGroupRepository;
 import com.simpletak.takscheduler.api.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -32,27 +34,42 @@ public class EventGroupService {
     private final UserRepository userRepository;
     private final EventGroupMapper mapper;
     private final TagEventGroupRepository tagEventGroupRepository;
-    private final CacheManager cacheManager;
+    private final SubscriptionRepository subscriptionRepository;
+
     public EventGroupDTO findEventGroupById(UUID id) {
-        return mapper.fromEntity(eventGroupRepository.findById(id).orElseThrow(EventGroupNotFoundException::new));
+        EventGroupEntity eventGroupEntity = eventGroupRepository.findById(id).orElseThrow(EventGroupNotFoundException::new);
+        EventGroupDTO eventGroupDTO = mapper.fromEntity(eventGroupEntity);
+
+        setSubscriptionAndOwnedToEventGroupDTO(eventGroupDTO);
+
+        return eventGroupDTO;
     }
 
-    public EventGroupDTO createEventGroup(NewEventGroupDTO eventGroupDTO){
+    private void setSubscriptionAndOwnedToEventGroupDTO(EventGroupDTO eventGroupDTO) {
+        UUID userId = (UUID) SecurityContextHolder.getContext().getAuthentication().getDetails();
+        UUID eventGroupId = eventGroupDTO.getId();
+        boolean subscribed = subscriptionRepository.existsByEventGroupEntity_IdAndUserEntity_Id(eventGroupId, userId);
+        eventGroupDTO.setSubscribed(subscribed);
+
+        boolean isOwned = eventGroupDTO.getOwnerId().equals(userId);
+        eventGroupDTO.setOwned(isOwned);
+    }
+
+    public EventGroupDTO createEventGroup(NewEventGroupDTO eventGroupDTO) {
         EventGroupEntity eventGroupEntity = mapper.toEntity(new EventGroupDTO(eventGroupDTO, null));
         return mapper.fromEntity(eventGroupRepository.saveAndFlush(eventGroupEntity));
     }
 
-    public EventGroupDTO updateEventGroup(EventGroupDTO eventGroupDTO){
+    public EventGroupDTO updateEventGroup(EventGroupDTO eventGroupDTO) {
         EventGroupEntity eventGroupEntity = mapper.toEntity(eventGroupDTO);
-        if(!eventGroupRepository.existsById(eventGroupDTO.getId())) throw new EventGroupNotFoundException();
+        if (!eventGroupRepository.existsById(eventGroupDTO.getId())) throw new EventGroupNotFoundException();
         return mapper.fromEntity(eventGroupRepository.saveAndFlush(eventGroupEntity));
     }
 
-    public void deleteEventGroup(UUID id){
+    public void deleteEventGroup(UUID id) {
         try {
             eventGroupRepository.deleteById(id);
-        }
-        catch (EmptyResultDataAccessException e){
+        } catch (EmptyResultDataAccessException e) {
             throw new EventGroupNotFoundException();
         }
     }
@@ -60,9 +77,17 @@ public class EventGroupService {
     public List<EventGroupDTO> getEventGroupsByTags(List<UUID> tags) {
         var eventGroups = tagEventGroupRepository.getEventGroupIdsByAllTagIds(
                 tags.stream().map(UUID::toString).collect(Collectors.toList()));
-        return eventGroupRepository.findAllById(eventGroups).stream()
+
+
+        List<EventGroupDTO> eventGroupDTOs = eventGroupRepository.findAllById(eventGroups).stream()
                 .map(mapper::fromEntity)
                 .collect(Collectors.toList());
+
+        for (EventGroupDTO eventGroupDTO : eventGroupDTOs) {
+            setSubscriptionAndOwnedToEventGroupDTO(eventGroupDTO);
+        }
+
+        return eventGroupDTOs;
     }
 
     @Cacheable("eventGroups")
@@ -70,8 +95,15 @@ public class EventGroupService {
         System.out.println("IN getEventGroups");
         Pageable pageConfig = PageRequest.of(page, size);
         UserEntity user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+
         Page<EventGroupEntity> eventGroupEntities =
                 eventGroupRepositoryPagingAndSorting.findAllByOwner(user, pageConfig);
-        return eventGroupEntities.map(mapper::fromEntity);
+
+        Page<EventGroupDTO> eventGroupDTOs = eventGroupEntities.map(mapper::fromEntity);
+
+        for (EventGroupDTO eventGroupDTO : eventGroupDTOs) {
+            setSubscriptionAndOwnedToEventGroupDTO(eventGroupDTO);
+        }
+        return eventGroupDTOs;
     }
 }
