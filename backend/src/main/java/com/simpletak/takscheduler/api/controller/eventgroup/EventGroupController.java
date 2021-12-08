@@ -46,10 +46,7 @@ public class EventGroupController {
     @GetMapping
     public Response<Page<EventGroupDTO>> getEventGroupsByUser(@RequestParam int page,
                                                               @RequestParam int size){
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return Response.success(eventGroupService.getEventGroupsByUser((UUID) authentication.getDetails(), page, size));
+        UUID userId = (UUID) SecurityContextHolder.getContext().getAuthentication().getDetails();
+        return Response.success(eventGroupService.getEventGroupsByUser(userId, page, size));
     }
-
-
-
 }
