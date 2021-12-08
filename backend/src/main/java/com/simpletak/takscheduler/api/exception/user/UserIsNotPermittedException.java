@@ -5,6 +5,6 @@ import org.springframework.http.HttpStatus;
 
 public class UserIsNotPermittedException extends WebException {
     public UserIsNotPermittedException(String message) {
-        super(message, HttpStatus.CONFLICT);
+        super(message, HttpStatus.UNAUTHORIZED);
     }
 }
