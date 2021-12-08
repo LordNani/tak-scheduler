@@ -12,6 +12,8 @@ import com.simpletak.takscheduler.api.repository.eventGroup.EventGroupRepository
 import com.simpletak.takscheduler.api.repository.tagEventGroup.TagEventGroupRepository;
 import com.simpletak.takscheduler.api.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -30,7 +32,7 @@ public class EventGroupService {
     private final UserRepository userRepository;
     private final EventGroupMapper mapper;
     private final TagEventGroupRepository tagEventGroupRepository;
-
+    private final CacheManager cacheManager;
     public EventGroupDTO findEventGroupById(UUID id) {
         return mapper.fromEntity(eventGroupRepository.findById(id).orElseThrow(EventGroupNotFoundException::new));
     }
@@ -63,12 +65,13 @@ public class EventGroupService {
                 .collect(Collectors.toList());
     }
 
+    @Cacheable("eventGroups")
     public Page<EventGroupDTO> getEventGroupsByUser(UUID userId, int page, int size) {
+        System.out.println("IN getEventGroups");
         Pageable pageConfig = PageRequest.of(page, size);
         UserEntity user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
         Page<EventGroupEntity> eventGroupEntities =
                 eventGroupRepositoryPagingAndSorting.findAllByOwner(user, pageConfig);
-
         return eventGroupEntities.map(mapper::fromEntity);
     }
 }
