@@ -17,6 +17,4 @@ public class NewEventGroupDTO {
     private String eventName;
     @NotNull
     private String eventGroupDescription;
-    @NotNull
-    private UUID ownerId;
 }

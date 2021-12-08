@@ -28,7 +28,8 @@ public class EventGroupController {
 
     @PostMapping
     public Response<EventGroupDTO> createEventGroup(@Valid @RequestBody NewEventGroupDTO eventGroupDTO) {
-        return Response.success(eventGroupService.createEventGroup(eventGroupDTO));
+        UUID userId = (UUID) SecurityContextHolder.getContext().getAuthentication().getDetails();
+        return Response.success(eventGroupService.createEventGroup(eventGroupDTO, userId));
     }
 
     @PutMapping
@@ -46,7 +47,7 @@ public class EventGroupController {
     @GetMapping
     public Response<Page<EventGroupDTO>> getEventGroupsByUser(@RequestParam int page,
                                                               @RequestParam int size){
-        UUID userId = (UUID) SecurityContextHolder.getContext().getAuthentication().getDetails();
-        return Response.success(eventGroupService.getEventGroupsByUser(userId, page, size));
+
+        return Response.success(eventGroupService.getEventGroupsByUser(page, size));
     }
 }

@@ -1,6 +1,7 @@
 package com.simpletak.takscheduler.api.dto.eventGroup;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -10,12 +11,13 @@ import java.util.UUID;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class EventGroupDTO{
 
-    public EventGroupDTO(NewEventGroupDTO base, UUID id){
+    public EventGroupDTO(NewEventGroupDTO base, UUID id, UUID ownerId){
         this.eventGroupDescription = base.getEventGroupDescription();
         this.eventName = base.getEventName();
-        this.ownerId = base.getOwnerId();
+        this.ownerId = ownerId;
         this.id = id;
     }
 
@@ -27,4 +29,7 @@ public class EventGroupDTO{
     private UUID ownerId;
     @NotNull
     private UUID id;
+
+    private boolean isOwned;
+    private boolean isSubscribed;
 }

@@ -71,8 +71,8 @@ public class ApplicationListenerInitialize implements ApplicationListener<Applic
             eventGroupDTOS.add(eventGroupService.createEventGroup(NewEventGroupDTO.builder()
                     .eventName("nameGroup" + i)
                     .eventGroupDescription("descr" + i)
-                    .ownerId(admin.getId())
-                    .build()
+                    .build(),
+                    admin.getId()
             ));
         }
         return eventGroupDTOS;
