@@ -58,20 +58,21 @@ public class EventGroupService {
         eventGroupDTO.setOwned(isOwned);
     }
 
-    public EventGroupDTO createEventGroup(NewEventGroupDTO eventGroupDTO) {
-        EventGroupEntity eventGroupEntity = mapper.toEntity(new EventGroupDTO(eventGroupDTO, null));
+    public EventGroupDTO createEventGroup(NewEventGroupDTO eventGroupDTO, UUID userId) {
+        EventGroupEntity eventGroupEntity = mapper.toEntity(new EventGroupDTO(eventGroupDTO, null, userId));
         return mapper.fromEntity(eventGroupRepository.saveAndFlush(eventGroupEntity));
     }
 
     public EventGroupDTO updateEventGroup(EventGroupDTO eventGroupDTO) {
         UUID userId = (UUID) SecurityContextHolder.getContext().getAuthentication().getDetails();
 
+        if (!eventGroupRepository.existsById(eventGroupDTO.getId())) throw new EventGroupNotFoundException();
         EventGroupEntity eventGroupEntity = mapper.toEntity(eventGroupDTO);
 
         if (!userId.equals(eventGroupEntity.getOwner().getId())) {
             throw new UserIsNotPermittedException("You are not authorized to edit this event group.");
         }
-        if (!eventGroupRepository.existsById(eventGroupDTO.getId())) throw new EventGroupNotFoundException();
+
         return mapper.fromEntity(eventGroupRepository.saveAndFlush(eventGroupEntity));
     }
 
