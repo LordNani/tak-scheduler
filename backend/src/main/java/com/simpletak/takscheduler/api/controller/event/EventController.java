@@ -3,6 +3,8 @@ package com.simpletak.takscheduler.api.controller.event;
 import com.simpletak.takscheduler.api.config.Response;
 import com.simpletak.takscheduler.api.dto.event.EventDTO;
 import com.simpletak.takscheduler.api.dto.event.NewEventDTO;
+import com.simpletak.takscheduler.api.model.event.scheduling.EventSchedulingByCronDTO;
+import com.simpletak.takscheduler.api.model.event.scheduling.EventSchedulingByDateDTO;
 import com.simpletak.takscheduler.api.service.event.EventService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -34,5 +36,19 @@ public class EventController {
     @DeleteMapping("/{id}")
     public void deleteEvent(@PathVariable("id") UUID id) {
         eventService.deleteEvent(id);
+    }
+
+    @PostMapping("/schedule")
+    public Response<String> scheduleEventV2(@Valid @RequestBody EventSchedulingByCronDTO eventDTO) {
+        eventService.scheduleEventByCron(eventDTO);
+        return Response.success("Event has been scheduled.");
+    }
+
+    @PostMapping("/schedule-by-date")
+    public Response<String> scheduleEvent(@Valid @RequestBody EventSchedulingByDateDTO eventSchedulingByDateDTO) {
+        System.out.println("eventEntity.getEventDate(): " + eventSchedulingByDateDTO.getExecutionDate());
+        eventService.scheduleEventByDate(eventSchedulingByDateDTO);
+
+        return Response.success("Event has been scheduled.");
     }
 }

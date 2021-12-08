@@ -44,12 +44,13 @@ public class EventEntity {
     @Column(name = "eventFreq")
     private EventFreq eventFreq;
 
+    @Column(name = "execution_cron_date")
+    private String eventCron;
+
     @Column(name = "eventDate")
-    @Temporal(TemporalType.DATE)
     private Date eventDate;
 
     @Column(name = "eventTime")
-    @Temporal(TemporalType.TIME)
     private Date eventTime;
 
     @ManyToOne(fetch = FetchType.LAZY)
