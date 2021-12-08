@@ -12,13 +12,13 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class SubscriptionMapper implements Mapper<SubscriptionEntity, SubscriptionDTO> {
+public class SubscriptionMapper implements Mapper<SubscriptionEntity, SubscriptionResponseDTO> {
     private final UserRepository userRepository;
     private final EventGroupRepository eventGroupRepository;
     @Override
-    public SubscriptionEntity toEntity(SubscriptionDTO dto) {
+    public SubscriptionEntity toEntity(SubscriptionResponseDTO dto) {
         UserEntity user = userRepository
-                .findById(dto.getUserID())
+                .findById(dto.getUserId())
                 .orElseThrow(UserNotFoundException::new);
 
         EventGroupEntity eventGroup = eventGroupRepository
@@ -28,8 +28,8 @@ public class SubscriptionMapper implements Mapper<SubscriptionEntity, Subscripti
     }
 
     @Override
-    public SubscriptionDTO fromEntity(SubscriptionEntity entity) {
-        return new SubscriptionDTO(
+    public SubscriptionResponseDTO fromEntity(SubscriptionEntity entity) {
+        return new SubscriptionResponseDTO(
                 entity.getId(),
                 entity.getEventGroupEntity().getId(),
                 entity.getUserEntity().getId()
