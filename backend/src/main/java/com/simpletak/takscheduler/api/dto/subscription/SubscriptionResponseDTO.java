@@ -10,10 +10,8 @@ import java.util.UUID;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class SubscriptionDTO {
+public class SubscriptionResponseDTO {
     private UUID id;
-    @NotNull
+    private UUID userId;
     private UUID eventGroupID;
-    @NotNull
-    private UUID userID;
 }

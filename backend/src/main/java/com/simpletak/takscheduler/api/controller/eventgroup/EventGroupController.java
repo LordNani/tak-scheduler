@@ -7,6 +7,7 @@ import com.simpletak.takscheduler.api.service.eventgroup.EventGroupService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -42,9 +43,9 @@ public class EventGroupController {
 
     @Operation(summary = "Receive user's event groups with pagination")
     @GetMapping
-    public Response<Page<EventGroupDTO>> getEventGroupsByUser(@Valid @RequestParam UUID userId,
-                                                              @RequestParam int page,
+    public Response<Page<EventGroupDTO>> getEventGroupsByUser(@RequestParam int page,
                                                               @RequestParam int size){
+        UUID userId = (UUID) SecurityContextHolder.getContext().getAuthentication().getDetails();
         return Response.success(eventGroupService.getEventGroupsByUser(userId, page, size));
     }
 }
