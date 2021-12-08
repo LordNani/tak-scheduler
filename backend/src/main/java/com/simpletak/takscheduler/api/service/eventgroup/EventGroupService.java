@@ -4,6 +4,7 @@ import com.simpletak.takscheduler.api.dto.eventGroup.EventGroupDTO;
 import com.simpletak.takscheduler.api.dto.eventGroup.EventGroupMapper;
 import com.simpletak.takscheduler.api.dto.eventGroup.NewEventGroupDTO;
 import com.simpletak.takscheduler.api.exception.eventgroup.EventGroupNotFoundException;
+import com.simpletak.takscheduler.api.exception.user.UserIsNotPermittedException;
 import com.simpletak.takscheduler.api.exception.user.UserNotFoundException;
 import com.simpletak.takscheduler.api.model.eventGroup.EventGroupEntity;
 import com.simpletak.takscheduler.api.model.user.UserEntity;
@@ -63,17 +64,29 @@ public class EventGroupService {
     }
 
     public EventGroupDTO updateEventGroup(EventGroupDTO eventGroupDTO) {
+        UUID userId = (UUID) SecurityContextHolder.getContext().getAuthentication().getDetails();
+
         EventGroupEntity eventGroupEntity = mapper.toEntity(eventGroupDTO);
+
+        if (!userId.equals(eventGroupEntity.getOwner().getId())) {
+            throw new UserIsNotPermittedException("You are not authorized to edit this event group.");
+        }
         if (!eventGroupRepository.existsById(eventGroupDTO.getId())) throw new EventGroupNotFoundException();
         return mapper.fromEntity(eventGroupRepository.saveAndFlush(eventGroupEntity));
     }
 
     public void deleteEventGroup(UUID id) {
-        try {
-            eventGroupRepository.deleteById(id);
-        } catch (EmptyResultDataAccessException e) {
-            throw new EventGroupNotFoundException();
+        UUID userId = (UUID) SecurityContextHolder.getContext().getAuthentication().getDetails();
+
+        EventGroupEntity eventGroupEntity = eventGroupRepository
+                .findById(id)
+                .orElseThrow(EventGroupNotFoundException::new);
+
+        if (!userId.equals(eventGroupEntity.getOwner().getId())) {
+            throw new UserIsNotPermittedException("You are not authorized to delete this event group.");
         }
+
+        eventGroupRepository.deleteById(id);
     }
 
     public List<EventGroupDTO> getEventGroupsByTags(List<UUID> tags) {

@@ -61,17 +61,32 @@ public class EventService {
     }
 
     public EventDTO updateEvent(EventDTO eventDTO) {
+        UUID userId = (UUID) SecurityContextHolder.getContext().getAuthentication().getDetails();
+
         EventEntity eventEntity = mapper.toEntity(eventDTO);
+
+        EventGroupEntity eventGroupEntity = eventEntity.getEventGroup();
+        if (!userId.equals(eventGroupEntity.getOwner().getId())) {
+            throw new UserIsNotPermittedException("You are not authorized to edit this event.");
+        }
+
         if (!eventRepository.existsById(eventDTO.getId())) throw new EventNotFoundException();
         return mapper.fromEntity(eventRepository.saveAndFlush(eventEntity));
     }
 
     public void deleteEvent(UUID id) {
-        try {
-            eventRepository.deleteById(id);
-        } catch (EmptyResultDataAccessException e) {
-            throw new EventGroupNotFoundException();
+        UUID userId = (UUID) SecurityContextHolder.getContext().getAuthentication().getDetails();
+
+        EventEntity eventEntity = eventRepository
+                .findById(id)
+                .orElseThrow(EventNotFoundException::new);
+
+        EventGroupEntity eventGroupEntity = eventEntity.getEventGroup();
+        if (!userId.equals(eventGroupEntity.getOwner().getId())) {
+            throw new UserIsNotPermittedException("You are not authorized to delete this event.");
         }
+
+        eventRepository.deleteById(id);
     }
 
     public void scheduleEvents() {
