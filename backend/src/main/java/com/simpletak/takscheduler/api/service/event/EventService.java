@@ -8,6 +8,7 @@ import com.simpletak.takscheduler.api.exception.event.EventNotFoundException;
 import com.simpletak.takscheduler.api.exception.eventgroup.EventGroupNotFoundException;
 import com.simpletak.takscheduler.api.exception.user.UserNotFoundException;
 import com.simpletak.takscheduler.api.model.event.EventEntity;
+import com.simpletak.takscheduler.api.model.event.EventFreq;
 import com.simpletak.takscheduler.api.model.event.scheduling.EventSchedulingByCronDTO;
 import com.simpletak.takscheduler.api.model.event.scheduling.EventSchedulingByDateDTO;
 import com.simpletak.takscheduler.api.repository.event.EventRepository;
@@ -24,11 +25,14 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
 @Log
 public class EventService {
+    public static final long DAY_IN_MILISECONDS = 86400000;
+    public static final long DAY_IN_WEEK = 7;
     private final ThreadPoolTaskScheduler taskScheduler;
     private final EventRepository eventRepository;
     private final EventMapper mapper;
@@ -57,12 +61,8 @@ public class EventService {
         }
     }
 
-    public void scheduleEvents() { // TODO uncomment in PROD
+    public void scheduleEvents() {
         List<EventEntity> eventsWithCron = eventRepository.findAllByEventCronIsNotNull();
-        for (int i = 0; i < eventsWithCron.size(); i++) {
-            System.out.println("eventsWithCron: " + eventsWithCron.get(i).getEventName());
-        }
-
         for (EventEntity eventEntity : eventsWithCron) {
             scheduleEventByCron(eventEntity);
         }
@@ -81,15 +81,33 @@ public class EventService {
 
     private void scheduleEventByDate(EventEntity eventEntity) {
         EventRunnableTask task = applicationContext.getBean(EventRunnableTask.class);
+        long period = DAY_IN_MILISECONDS;
         task.setEventEntity(eventEntity);
-        taskScheduler.schedule(
-                task,
-                eventEntity.getEventDate()
-        );
+
+        if (eventEntity.getEventFreq().equals(EventFreq.WEEKLY)) {
+            period = DAY_IN_MILISECONDS * DAY_IN_WEEK;
+            taskScheduler.scheduleWithFixedDelay(
+                    task,
+                    eventEntity.getEventDate(),
+                    period
+            );
+        } else if (eventEntity.getEventFreq().equals(EventFreq.DAILY)) {
+            taskScheduler.scheduleWithFixedDelay(
+                    task,
+                    eventEntity.getEventDate(),
+                    period
+            );
+        } else {
+            taskScheduler.schedule(
+                    task,
+                    eventEntity.getEventDate()
+            );
+        }
 
         log.info("The event '" + eventEntity.getEventName() + "' has been scheduled by date.");
 
     }
+
     public void scheduleEventByDate(EventSchedulingByDateDTO eventSchedulingByDateDTO) {
         EventEntity eventEntity = eventRepository
                 .findById(eventSchedulingByDateDTO.getEventID())
