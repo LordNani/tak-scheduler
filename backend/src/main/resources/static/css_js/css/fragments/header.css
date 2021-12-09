@@ -4,3 +4,8 @@ body {
  nav{
      border-bottom: solid 1px lightgray;
  }
+
+ button.nav-link{
+     background-color: transparent;
+     border-width: 0;
+ }

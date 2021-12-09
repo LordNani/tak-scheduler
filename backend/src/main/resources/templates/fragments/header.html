@@ -6,7 +6,6 @@
 
     <div th:fragment="header-links">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet">
-        <link rel="stylesheet" th:href="@{/css_js/css/fragments/header.css}"/>
         <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js" ></script>
         <link rel="stylesheet" th:href="@{/css_js/css/fragments/header.css}" />
     </div>
@@ -40,9 +39,19 @@
                     <li class="nav-item" th:if="${isAdmin}">
                         <a class="nav-link" href="/view/tag" >Tags</a>
                     </li>
+                    <li class="nav-item">
+                        <button class="nav-link" onclick="logout()">Logout</button>
+                    </li>
                 </ul>
             </div>
         </div>
+        <script>
+            function logout(){
+                sessionStorage.removeItem('token')
+                document.cookie+=";max-age=0"
+                window.location='/view'
+            }
+        </script>
     </nav>
 
 </body>

@@ -60,9 +60,13 @@
 
     }
     async function loadEvents(year, month){
+        const eventsContainer = document.querySelector('.events-container')
+        eventsContainer.innerHTML=""
         fetch('/api/events/by-month/'+year+'/'+month)
         .then(res => res.json())
         .then(r => {
+            currentMonth = month
+            currentYear = year
             eventsOfMonth.clear()
             r.data.forEach(event => {
                 let datetime = new Date(event.nextEventDate)
