@@ -5,7 +5,7 @@ import com.simpletak.takscheduler.api.dto.event.EventMapper;
 import com.simpletak.takscheduler.api.dto.event.NewEventDTO;
 import com.simpletak.takscheduler.api.exception.InvalidCronExpressionException;
 import com.simpletak.takscheduler.api.exception.event.EventNotFoundException;
-import com.simpletak.takscheduler.api.exception.eventgroup.EventGroupNotFoundException;
+import com.simpletak.takscheduler.api.exception.event.IncorrectYearOrTimeRangeException;
 import com.simpletak.takscheduler.api.exception.user.UserIsNotPermittedException;
 import com.simpletak.takscheduler.api.exception.user.UserNotFoundException;
 import com.simpletak.takscheduler.api.model.event.EventEntity;
@@ -13,12 +13,13 @@ import com.simpletak.takscheduler.api.model.event.EventFreq;
 import com.simpletak.takscheduler.api.model.event.scheduling.EventSchedulingByCronDTO;
 import com.simpletak.takscheduler.api.model.event.scheduling.EventSchedulingByDateDTO;
 import com.simpletak.takscheduler.api.model.eventGroup.EventGroupEntity;
+import com.simpletak.takscheduler.api.model.subscription.SubscriptionEntity;
 import com.simpletak.takscheduler.api.repository.event.EventRepository;
+import com.simpletak.takscheduler.api.repository.subscription.SubscriptionRepository;
 import com.simpletak.takscheduler.api.service.event.scheduling.EventRunnableTask;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
 import org.springframework.context.ApplicationContext;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.quartz.CronExpression;
 import org.springframework.scheduling.support.CronTrigger;
@@ -26,9 +27,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -40,6 +42,7 @@ public class EventService {
     private final EventRepository eventRepository;
     private final EventMapper mapper;
     private final ApplicationContext applicationContext;
+    private final SubscriptionRepository subscriptionRepository;
 
     public EventDTO findEventById(UUID id) {
         return mapper.fromEntity(eventRepository.findById(id).orElseThrow(EventNotFoundException::new));
@@ -116,19 +119,19 @@ public class EventService {
             period = DAY_IN_MILISECONDS * DAY_IN_WEEK;
             taskScheduler.scheduleWithFixedDelay(
                     task,
-                    eventEntity.getEventDate(),
+                    eventEntity.getNextEventDate(),
                     period
             );
         } else if (eventEntity.getEventFreq().equals(EventFreq.DAILY)) {
             taskScheduler.scheduleWithFixedDelay(
                     task,
-                    eventEntity.getEventDate(),
+                    eventEntity.getNextEventDate(),
                     period
             );
         } else {
             taskScheduler.schedule(
                     task,
-                    eventEntity.getEventDate()
+                    eventEntity.getNextEventDate()
             );
         }
 
@@ -141,7 +144,7 @@ public class EventService {
                 .findById(eventSchedulingByDateDTO.getEventID())
                 .orElseThrow(UserNotFoundException::new);
 
-        eventEntity.setEventDate(eventSchedulingByDateDTO.getExecutionDate());
+        eventEntity.setNextEventDate(eventSchedulingByDateDTO.getExecutionDate());
         eventRepository.save(eventEntity);
         scheduleEventByDate(eventEntity);
     }
@@ -178,5 +181,117 @@ public class EventService {
         String day = cron.substring(9, 11);
         String month = cron.substring(12, 14);
         return String.format("%s-%s-%sT%s:%s:00", LocalDate.now().getYear(), month, day, hour, minutes);
+    }
+
+    public List<EventDTO> eventsInMonth(Integer year, Integer month) {
+        UUID userId = (UUID) SecurityContextHolder.getContext().getAuthentication().getDetails();
+        validateYearAndMonth(year, month);
+        Calendar startRangeC = new GregorianCalendar(year, month-1, 1, 0, 0);
+        Date startRange = startRangeC.getTime();
+        startRangeC.add(Calendar.MONTH, 1);
+        Date endRange = startRangeC.getTime();
+        return getSubscribedEventsInTimeRange(startRange, endRange, userId);
+    }
+
+    public List<EventDTO> eventsWithinDay(Integer year, Integer month, Integer day) {
+        UUID userId = (UUID) SecurityContextHolder.getContext().getAuthentication().getDetails();
+        validateYearAndMonthAndDay(year, month, day);
+        Calendar startRangeC = new GregorianCalendar(year, month-1, day, 0, 0);
+        Date startRange = startRangeC.getTime();
+        startRangeC.add(Calendar.DAY_OF_MONTH, 1);
+        Date endRange = startRangeC.getTime();
+        return getSubscribedEventsInTimeRange(startRange, endRange, userId);
+    }
+
+    private List<EventDTO> getSubscribedEventsInTimeRange(Date startRange, Date endRange, UUID userId) {
+        List<SubscriptionEntity> subscriptionEntities = subscriptionRepository.findAllByUserEntity_Id(userId);
+        List<EventGroupEntity> eventGroups = subscriptionEntities
+                .stream()
+                .map(SubscriptionEntity::getEventGroupEntity)
+                .collect(Collectors.toList());
+        List<EventEntity> events = eventRepository.findAllByStartEventDateLessThanEqualAndEndEventDateGreaterThanAndEventGroupIn(endRange, startRange, eventGroups);
+        List<EventEntity> reoccurringEvents = events
+                .stream()
+                .filter(EventEntity::isReoccurring)
+                .collect(Collectors.toList());
+        events.addAll(getRepeatedEventsInTimeRange(startRange, endRange, reoccurringEvents));
+        return events
+                .stream()
+                .map(mapper::fromEntity)
+                .collect(Collectors.toList());
+    }
+
+    private List<EventEntity> getRepeatedEventsInTimeRange(Date startRange, Date endRange, List<EventEntity> reoccurringEvents) {
+        LinkedList<EventEntity> events = new LinkedList<>();
+        while(!events.isEmpty()){
+            EventEntity reoccurringEvent = events.pop();
+            Calendar actualStartDateInInterval = new GregorianCalendar();
+            actualStartDateInInterval.setTime(reoccurringEvent.getStartEventDate());
+            Calendar actualEndDateInInterval = new GregorianCalendar();
+            actualEndDateInInterval.setTime(reoccurringEvent.getEndEventDate().compareTo(endRange) > 0 ?
+                    endRange : reoccurringEvent.getEndEventDate());
+            if(actualStartDateInInterval.compareTo(actualEndDateInInterval) >= 0) continue;
+            if(reoccurringEvent.getStartEventDate().compareTo(startRange) < 0){
+                actualStartDateInInterval = getActualStartDateInRange(reoccurringEvent.getStartEventDate(), reoccurringEvent.getEventFreq(), startRange);
+            }
+            int incrementField = reoccurringEvent.getEventFreq().getType().equals(EventFreq.DAILY) ?
+                    Calendar.DAY_OF_MONTH : Calendar.WEEK_OF_MONTH;
+            for(Calendar currentDate = (Calendar) actualEndDateInInterval.clone();
+                currentDate.compareTo(actualEndDateInInterval) < 0;
+                currentDate.add(incrementField, 1)){
+                EventEntity clone = reoccurringEvent.clone();
+                clone.setNextEventDate(currentDate.getTime());
+                events.add(clone);
+            }
+        }
+        return events;
+    }
+
+    private Calendar getActualStartDateInRange(Date earlierDate, EventFreq eventFreq, Date date) {
+        Calendar earlierCalendar = new GregorianCalendar();
+        earlierCalendar.setTime(earlierDate);
+        Calendar calendar = new GregorianCalendar();
+        calendar.setTime(date);
+        if(eventFreq.equals(EventFreq.DAILY)){
+            if(timeOfDayCompare(earlierCalendar, calendar) < 0){
+                calendar.add(Calendar.DAY_OF_MONTH, 1);
+            }
+            earlierCalendar.set(Calendar.YEAR, calendar.get(Calendar.YEAR));
+            earlierCalendar.set(Calendar.DAY_OF_MONTH, 1); //Precaution
+            earlierCalendar.set(Calendar.MONTH, calendar.get(Calendar.MONTH));
+            earlierCalendar.set(Calendar.DAY_OF_MONTH, calendar.get(Calendar.DAY_OF_MONTH));
+            return earlierCalendar;
+        }
+        else{
+            long daysBetween = ChronoUnit.DAYS.between(
+                    LocalDateTime.ofInstant(earlierCalendar.toInstant(), earlierCalendar.getTimeZone().toZoneId()),
+                    LocalDateTime.ofInstant(calendar.toInstant(), calendar.getTimeZone().toZoneId()));
+            int amountOfWeeks = (int) (daysBetween/7);
+            earlierCalendar.add(Calendar.WEEK_OF_YEAR, amountOfWeeks);
+            if(earlierCalendar.compareTo(calendar) < 0) earlierCalendar.add(Calendar.WEEK_OF_YEAR, 1);
+            return earlierCalendar;
+        }
+    }
+
+    private int timeOfDayCompare(Calendar earlierCalendar, Calendar calendar) {
+        Calendar clone = (Calendar) calendar.clone();
+        clone.set(Calendar.YEAR, earlierCalendar.get(Calendar.YEAR));
+        clone.set(Calendar.DAY_OF_MONTH, 1); //Precaution
+        clone.set(Calendar.MONTH, earlierCalendar.get(Calendar.MONTH));
+        clone.set(Calendar.DAY_OF_MONTH, earlierCalendar.get(Calendar.DAY_OF_MONTH));
+        return earlierCalendar.compareTo(clone);
+    }
+
+    private void validateYearAndMonthAndDay(Integer year, Integer month, Integer day) {
+        validateYearAndMonth(year, month);
+        Calendar calendar = new GregorianCalendar(year, month, 1);
+        int maxDay = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
+        if(day < 1 || day > maxDay) throw new IncorrectYearOrTimeRangeException();
+    }
+
+    private void validateYearAndMonth(Integer year, Integer month) {
+        if(!(year != null && year >= 2021 && year < 2121 && month != null && month >= 1 && month <= 12)){
+            throw new IncorrectYearOrTimeRangeException();
+        }
     }
 }

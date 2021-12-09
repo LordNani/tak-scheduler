@@ -8,6 +8,7 @@ import com.simpletak.takscheduler.api.exception.user.UserIsNotPermittedException
 import com.simpletak.takscheduler.api.exception.user.UserNotFoundException;
 import com.simpletak.takscheduler.api.model.eventGroup.EventGroupEntity;
 import com.simpletak.takscheduler.api.model.user.UserEntity;
+import com.simpletak.takscheduler.api.repository.event.EventRepository;
 import com.simpletak.takscheduler.api.repository.eventGroup.EventGroupRepository;
 import com.simpletak.takscheduler.api.repository.eventGroup.EventGroupRepositoryPagingAndSorting;
 import com.simpletak.takscheduler.api.repository.subscription.SubscriptionRepository;
@@ -23,6 +24,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -35,9 +37,11 @@ public class EventGroupService {
     private final EventGroupRepository eventGroupRepository;
     private final EventGroupRepositoryPagingAndSorting eventGroupRepositoryPagingAndSorting;
     private final UserRepository userRepository;
-    private final EventGroupMapper mapper;
     private final TagEventGroupRepository tagEventGroupRepository;
     private final SubscriptionRepository subscriptionRepository;
+    private final EventRepository eventRepository;
+    private final EventGroupMapper mapper;
+
 
     public EventGroupDTO findEventGroupById(UUID id) {
         EventGroupEntity eventGroupEntity = eventGroupRepository.findById(id).orElseThrow(EventGroupNotFoundException::new);
@@ -60,7 +64,9 @@ public class EventGroupService {
 
     public EventGroupDTO createEventGroup(NewEventGroupDTO eventGroupDTO, UUID userId) {
         EventGroupEntity eventGroupEntity = mapper.toEntity(new EventGroupDTO(eventGroupDTO, null, userId));
-        return mapper.fromEntity(eventGroupRepository.saveAndFlush(eventGroupEntity));
+        EventGroupDTO savedDto =  mapper.fromEntity(eventGroupRepository.saveAndFlush(eventGroupEntity));
+        setSubscriptionAndOwnedToEventGroupDTO(savedDto);
+        return savedDto;
     }
 
     public EventGroupDTO updateEventGroup(EventGroupDTO eventGroupDTO) {
@@ -73,9 +79,12 @@ public class EventGroupService {
             throw new UserIsNotPermittedException("You are not authorized to edit this event group.");
         }
 
-        return mapper.fromEntity(eventGroupRepository.saveAndFlush(eventGroupEntity));
+        EventGroupDTO savedDto = mapper.fromEntity(eventGroupRepository.saveAndFlush(eventGroupEntity));
+        setSubscriptionAndOwnedToEventGroupDTO(savedDto);
+        return savedDto;
     }
 
+    @Transactional
     public void deleteEventGroup(UUID id) {
         UUID userId = (UUID) SecurityContextHolder.getContext().getAuthentication().getDetails();
 
@@ -86,7 +95,8 @@ public class EventGroupService {
         if (!userId.equals(eventGroupEntity.getOwner().getId())) {
             throw new UserIsNotPermittedException("You are not authorized to delete this event group.");
         }
-
+        subscriptionRepository.deleteByEventGroupEntity_Id(id);
+        eventRepository.deleteEventEntitiesByEventGroup_Id(id);
         eventGroupRepository.deleteById(id);
     }
 
@@ -106,11 +116,9 @@ public class EventGroupService {
         return eventGroupDTOs;
     }
 
-    @Cacheable("eventGroups")
-    public Page<EventGroupDTO> getEventGroupsByUser(int page, int size) {
+//    @Cacheable("eventGroups")
+    public Page<EventGroupDTO> getEventGroupsByUser(int page, int size, UUID userId) {
         log.info("In getEventGroups");
-
-        UUID userId = (UUID) SecurityContextHolder.getContext().getAuthentication().getDetails();
 
         Pageable pageConfig = PageRequest.of(page, size);
         UserEntity user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);

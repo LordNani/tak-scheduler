@@ -59,7 +59,7 @@ public class ApplicationListenerInitialize implements ApplicationListener<Applic
             createTestEvents(eventGroupDTOS);
 
 
-            eventService.scheduleEvents(); // TODO remove when PROD
+//            eventService.scheduleEvents(); // TODO remove when PROD
         }
 
         logger.info("Checked existence of admin, user roles");
@@ -69,7 +69,7 @@ public class ApplicationListenerInitialize implements ApplicationListener<Applic
         List<EventGroupDTO> eventGroupDTOS = new ArrayList<>();
         for (int i = 0; i < 15; i++) {
             eventGroupDTOS.add(eventGroupService.createEventGroup(NewEventGroupDTO.builder()
-                    .eventName("nameGroup" + i)
+                    .eventGroupName("nameGroup" + i)
                     .eventGroupDescription("descr" + i)
                     .build(),
                     admin.getId()
@@ -83,12 +83,18 @@ public class ApplicationListenerInitialize implements ApplicationListener<Applic
             EventGroupEntity e = mapper.toEntity(eventGroupDTO);
 
             for (int i = 0; i < 5; i++) {
+                GregorianCalendar now = new GregorianCalendar();
+                GregorianCalendar start = (GregorianCalendar) now.clone();
+                start.add(Calendar.DAY_OF_MONTH, -2+i);
+                GregorianCalendar end = (GregorianCalendar) now.clone();
+                end.add(Calendar.DAY_OF_MONTH, 2+i);
                 EventEntity eventEntity = EventEntity.builder()
-                        .eventName("| nameEvent" + i + eventGroupDTO.getEventName())
+                        .eventName("| nameEvent" + i + eventGroupDTO.getEventGroupName())
                         .eventGroup(e)
                         .eventDescription("name" + i)
-                        .eventDate(new Date())
-                        .eventTime(new Date())
+                        .nextEventDate(now.getTime())
+                        .startEventDate(start.getTime())
+                        .endEventDate(end.getTime())
                         .eventPriority(EventPriority.HIGH)
                         .eventFreq(EventFreq.DAILY)
                         .build();

@@ -14,7 +14,7 @@ import java.util.UUID;
 @Builder
 public class NewEventGroupDTO {
     @NotNull
-    private String eventName;
+    private String eventGroupName;
     @NotNull
     private String eventGroupDescription;
 }

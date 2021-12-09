@@ -1,3 +1,6 @@
 body {
     padding-top: 60px;
 }
+ nav{
+     border-bottom: solid 1px lightgray;
+ }
