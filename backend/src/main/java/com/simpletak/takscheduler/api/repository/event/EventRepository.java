@@ -14,5 +14,5 @@ public interface EventRepository extends JpaRepository<EventEntity, UUID> {
 
     List<EventEntity> findAllByEventCronIsNotNull();
 
-    List<EventEntity> findAllByStartEventDateLessThanEqualAndEndEventDateGreaterThan(Date rangeStart, Date rangeEnd);
+    List<EventEntity> findAllByStartEventDateLessThanEqualAndEndEventDateGreaterThanAndEventGroupIn(Date rangeEnd, Date rangeStart, List<EventGroupEntity> eventGroups);
 }

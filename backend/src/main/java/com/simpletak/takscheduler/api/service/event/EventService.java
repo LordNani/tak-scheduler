@@ -191,11 +191,10 @@ public class EventService {
         List<SubscriptionEntity> subscriptionEntities = subscriptionRepository.findAllByUserEntity_Id(userId);
         List<EventGroupEntity> eventGroups = subscriptionEntities
                 .stream()
-                .map(s -> s.getEventGroupEntity())
+                .map(SubscriptionEntity::getEventGroupEntity)
                 .collect(Collectors.toList());
-        return eventRepository.findAllByStartEventDateLessThanEqualAndEndEventDateGreaterThan(startRange, endRange)
+        return eventRepository.findAllByStartEventDateLessThanEqualAndEndEventDateGreaterThanAndEventGroupIn(endRange, startRange, eventGroups)
                 .stream()
-                .filter(e -> eventGroups.contains(e.getEventGroup()) || true)
                 .map(mapper::fromEntity)
                 .collect(Collectors.toList());
     }
