@@ -4,31 +4,50 @@
     <meta charset="UTF-8">
     <title>Event groups</title>
     <div th:replace="fragments/header :: header-links" />
+    <link rel="stylesheet" th:href="@{/css_js/css/event-groups.css}">
 </head>
 <body>
 <div th:replace="fragments/header :: header" />
 <div class="root">
-    <div class="search">
-        <form th:action="@{/view/search/by-tags}" method="get">
-            <div class="checkbox" th:each="tag : ${allTags}">
-                <label>
-                    <input type="checkbox" id="tagName" name="tags"
-                           th:text="${tag.tagName}" th:value="${tag.id}" />
-<!--                    <input type="hidden" id="tagId" name="tagId"  />-->
-                </label>
+    <div class="search-content">
+        <div class="search" th:if="${allTags!=null and !allTags.isEmpty()}">
+            <form class="event-groups-search" th:action="@{/view/search/by-tags}" method="get">
+                <div class="checkbox" th:each="tag : ${allTags}">
+                    <label>
+                        <input type="checkbox" id="tagName" name="tags"
+                               th:text="${tag.tagName}" th:value="${tag.id}" />
+                        <!--                    <input type="hidden" id="tagId" name="tagId"  />-->
+                    </label>
+                </div>
+                <div>
+                    <p>
+                        <button type="submit" class="btn btn-default">Save</button>
+                    </p>
+                </div>
+            </form>
+        </div>
+        <div th:if="${allTags==null or allTags.isEmpty()}">
+            <h2>To search by tags you should add tags first</h2>
+        </div>
+        <div class="event-group-list">
+            <div class="event-group-item" th:each="eventGroup : ${eventGroups}">
+                <p th:text="${eventGroup.eventName}"></p>
             </div>
-            <div>
-                <p>
-                    <button type="submit" class="btn btn-default">Save</button>
-                </p>
-            </div>
-        </form>
-    </div>
-    <div class="event-group-list">
-        <div class="event-group-item" th:each="eventGroup : ${eventGroups}">
-            <p th:text="${eventGroup.eventName}"></p>
         </div>
     </div>
 </div>
+<script>
+    window.onload=()=>{
+        const form = document.querySelector('.event-groups-search')
+        form.addEventListener('submit', e=>{
+            let checkboxes = form.querySelectorAll('input[type="checkbox"]')
+            let atLeastOneChecked = false
+            checkboxes.forEach(el => {
+                if(el.checked) atLeastOneChecked= true
+            })
+            if(!atLeastOneChecked) e.preventDefault()
+        })
+    }
+</script>
 </body>
 </html>

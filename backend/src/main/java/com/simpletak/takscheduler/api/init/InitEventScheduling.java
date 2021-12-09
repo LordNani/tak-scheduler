@@ -12,6 +12,6 @@ public class InitEventScheduling implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() {
-        eventService.scheduleEvents();
+//        eventService.scheduleEvents();
     }
 }

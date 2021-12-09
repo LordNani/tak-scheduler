@@ -59,7 +59,7 @@ public class ApplicationListenerInitialize implements ApplicationListener<Applic
             createTestEvents(eventGroupDTOS);
 
 
-            eventService.scheduleEvents(); // TODO remove when PROD
+//            eventService.scheduleEvents(); // TODO remove when PROD
         }
 
         logger.info("Checked existence of admin, user roles");
@@ -69,7 +69,7 @@ public class ApplicationListenerInitialize implements ApplicationListener<Applic
         List<EventGroupDTO> eventGroupDTOS = new ArrayList<>();
         for (int i = 0; i < 15; i++) {
             eventGroupDTOS.add(eventGroupService.createEventGroup(NewEventGroupDTO.builder()
-                    .eventName("nameGroup" + i)
+                    .eventGroupName("nameGroup" + i)
                     .eventGroupDescription("descr" + i)
                     .build(),
                     admin.getId()

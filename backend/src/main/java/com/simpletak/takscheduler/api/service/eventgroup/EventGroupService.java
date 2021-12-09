@@ -60,7 +60,9 @@ public class EventGroupService {
 
     public EventGroupDTO createEventGroup(NewEventGroupDTO eventGroupDTO, UUID userId) {
         EventGroupEntity eventGroupEntity = mapper.toEntity(new EventGroupDTO(eventGroupDTO, null, userId));
-        return mapper.fromEntity(eventGroupRepository.saveAndFlush(eventGroupEntity));
+        EventGroupDTO savedDto =  mapper.fromEntity(eventGroupRepository.saveAndFlush(eventGroupEntity));
+        setSubscriptionAndOwnedToEventGroupDTO(savedDto);
+        return savedDto;
     }
 
     public EventGroupDTO updateEventGroup(EventGroupDTO eventGroupDTO) {
@@ -73,7 +75,9 @@ public class EventGroupService {
             throw new UserIsNotPermittedException("You are not authorized to edit this event group.");
         }
 
-        return mapper.fromEntity(eventGroupRepository.saveAndFlush(eventGroupEntity));
+        EventGroupDTO savedDto = mapper.fromEntity(eventGroupRepository.saveAndFlush(eventGroupEntity));
+        setSubscriptionAndOwnedToEventGroupDTO(savedDto);
+        return savedDto;
     }
 
     public void deleteEventGroup(UUID id) {

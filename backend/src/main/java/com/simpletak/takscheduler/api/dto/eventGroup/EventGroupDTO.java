@@ -16,7 +16,7 @@ public class EventGroupDTO{
 
     public EventGroupDTO(NewEventGroupDTO base, UUID id, UUID ownerId){
         this.eventGroupDescription = base.getEventGroupDescription();
-        this.eventName = base.getEventName();
+        this.eventName = base.getEventGroupName();
         this.ownerId = ownerId;
         this.id = id;
     }

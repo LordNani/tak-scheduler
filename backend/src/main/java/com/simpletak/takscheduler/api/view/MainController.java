@@ -15,6 +15,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -48,7 +49,7 @@ public class MainController {
         }
     }
 
-    @GetMapping("/event-groups")
+    @GetMapping("/event-groups/search")
     public String eventGroups(Model model) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication.getDetails() instanceof UUID) {
@@ -61,16 +62,25 @@ public class MainController {
     }
 
     @GetMapping("/search/by-tags")
-    public String eventGroupsByTags(@RequestParam("tags") List<UUID> tags, Model model){
+    public String eventGroupsByTags(@RequestParam("tags") List<UUID> tags, Model model) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         List<EventGroupDTO> eventGroupDTOList = eventGroupService.getEventGroupsByTags(tags);
         addEventGroupsAttributes(model, eventGroupDTOList);
         addRoleAttribute(model, authentication);
-        return "event-groups";
+        return "/event-groups";
     }
+//
+//    @GetMapping("/search/by-tags?")
+//    public String eventGroupsByEmptyTagList(Model model) {
+//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//        List<EventGroupDTO> eventGroupDTOList = eventGroupService.getEventGroupsByTags(new ArrayList<>());
+//        addEventGroupsAttributes(model, eventGroupDTOList);
+//        addRoleAttribute(model, authentication);
+//        return "/event-groups";
+//    }
 
     @GetMapping("/profile")
-    public String profile(Model model){
+    public String profile(Model model) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication.getDetails() instanceof UUID) {
             UserInfoResponseDTO user = userService.getUser((UUID) authentication.getDetails());
@@ -85,13 +95,35 @@ public class MainController {
     }
 
     @GetMapping("/tag")
-    public String tags(Model model){
+    public String tags(Model model) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication.getDetails() instanceof UUID) {
             addRoleAttribute(model, authentication);
-            if(!(boolean)model.getAttribute("isAdmin")) return "index";
+            if (!(boolean) model.getAttribute("isAdmin")) return "index";
             model.addAttribute("allTags", tagService.getAllTags());
             return "tag";
+        } else {
+            return "auth";
+        }
+    }
+
+    @GetMapping("/create-event-group")
+    public String createEventGroup(Model model) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication.getDetails() instanceof UUID) {
+            addRoleAttribute(model, authentication);
+            return "create-event-group";
+        } else {
+            return "auth";
+        }
+    }
+
+    @GetMapping("/my-event-groups")
+    public String myEventGroups(Model model) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication.getDetails() instanceof UUID) {
+            addRoleAttribute(model, authentication);
+            return "my-event-groups";
         } else {
             return "auth";
         }
