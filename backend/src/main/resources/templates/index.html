@@ -75,6 +75,12 @@
                 })
                 eventsOfMonth.set(datetime.getDate(), updatedList)
             })
+            for(let i=1; i<32; i = parseInt(parseInt(i)+parseInt(1))){
+                document.querySelector('.day-'+i).className =
+                    eventsOfMonth.has(i) ?
+                        document.querySelector('.day-'+i).className += " has-events" :
+                    document.querySelector('.day-'+i).className.replace('has-events', '')
+            }
         })
     }
 
@@ -91,6 +97,10 @@
         rootEl.insertBefore(eventDescription, name)
         rootEl.insertBefore(time, eventDescription)
         return rootEl
+    }
+
+    function serDayClass(day){
+        return 'day-'+day
     }
 </script>
 </body>

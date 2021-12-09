@@ -19,3 +19,7 @@
 .events-container{
     width: 25vw;
 }
+
+.has-events{
+    background-color: #1c7430 !important;
+}

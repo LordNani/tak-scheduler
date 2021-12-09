@@ -28,9 +28,10 @@
                 if (
                 (
                 (shownDate != today.getDate() && passed_month == today.getMonth()) || passed_month != today.getMonth()) && iter_date < today) {
-                    var m = '<div class="past-date '+hasEvents(shownDate)+'">';
+                    var m = '<div class="past-date '+serDayClass(shownDate)+'">';
                 } else {
-                    var m = checkToday(iter_date) ? '<div class="today '+hasEvents(shownDate)+'">' : "<div>";
+                    var m = checkToday(iter_date) ? '<div class="today '+serDayClass(shownDate)+'">' :
+                        '<div class="'+serDayClass(shownDate)+'" >'
                 }
                 calendar.datesBody.append(m + shownDate + "</div>");
             }
@@ -282,13 +283,15 @@
     b();
     c(month, year, 0);
     c(nextMonth, nextYear, 1);
+    loadEvents(year, parseInt(parseInt(month)+parseInt(1)))
     switchButton.on("click", function () {
         var clicked = $(this);
-        var generateCalendars = function (e) {
+        var generateCalendars = async function (e) {
             var nextDatesFirst = getAdjacentMonth(month, year, e);
             var nextDatesSecond = getAdjacentMonth(nextMonth, nextYear, e);
             month = nextDatesFirst[0];
             year = nextDatesFirst[1];
+            await loadEvents(year, parseInt(parseInt(month)+parseInt(1)))
             nextMonth = nextDatesSecond[0];
             nextYear = nextDatesSecond[1];
 
