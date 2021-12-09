@@ -17,7 +17,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Data
 @Entity
-@Table(name = "event", indexes = @Index(name = "dateIndex", columnList = "eventDate ASC, eventTime ASC"))
+@Table(name = "event", indexes = @Index(name = "dateIndex", columnList = "nextEventDate ASC, startEventDate ASC, endEventDate ASC"))
 public class EventEntity {
     @Id
     @GeneratedValue(generator = "UUID")
@@ -47,8 +47,8 @@ public class EventEntity {
     @Column(name = "execution_cron_date")
     private String eventCron;
 
-    @Column(name = "eventDate")
-    private Date eventDate;
+    @Column(name = "nextEventDate")
+    private Date nextEventDate;
 
     @Column(name = "eventTime")
     private Date eventTime;
@@ -56,6 +56,12 @@ public class EventEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="eventGroup_id", nullable = false)
     private EventGroupEntity eventGroup;
+
+    @Column(name = "startEventDate")
+    private Date startEventDate;
+
+    @Column(name = "endEventDate")
+    private Date endEventDate;
 
 //    private EventDateTime eventDateTime;
 

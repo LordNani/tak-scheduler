@@ -83,11 +83,18 @@ public class ApplicationListenerInitialize implements ApplicationListener<Applic
             EventGroupEntity e = mapper.toEntity(eventGroupDTO);
 
             for (int i = 0; i < 5; i++) {
+                GregorianCalendar now = new GregorianCalendar();
+                GregorianCalendar start = (GregorianCalendar) now.clone();
+                start.add(Calendar.DAY_OF_MONTH, -2+i);
+                GregorianCalendar end = (GregorianCalendar) now.clone();
+                end.add(Calendar.DAY_OF_MONTH, 2+i);
                 EventEntity eventEntity = EventEntity.builder()
                         .eventName("| nameEvent" + i + eventGroupDTO.getEventName())
                         .eventGroup(e)
                         .eventDescription("name" + i)
-                        .eventDate(new Date())
+                        .nextEventDate(now.getTime())
+                        .startEventDate(start.getTime())
+                        .endEventDate(end.getTime())
                         .eventTime(new Date())
                         .eventPriority(EventPriority.HIGH)
                         .eventFreq(EventFreq.DAILY)

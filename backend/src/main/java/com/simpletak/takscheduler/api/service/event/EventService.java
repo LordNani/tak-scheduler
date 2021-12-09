@@ -5,7 +5,7 @@ import com.simpletak.takscheduler.api.dto.event.EventMapper;
 import com.simpletak.takscheduler.api.dto.event.NewEventDTO;
 import com.simpletak.takscheduler.api.exception.InvalidCronExpressionException;
 import com.simpletak.takscheduler.api.exception.event.EventNotFoundException;
-import com.simpletak.takscheduler.api.exception.eventgroup.EventGroupNotFoundException;
+import com.simpletak.takscheduler.api.exception.event.IncorrectYearOrTimeRangeException;
 import com.simpletak.takscheduler.api.exception.user.UserIsNotPermittedException;
 import com.simpletak.takscheduler.api.exception.user.UserNotFoundException;
 import com.simpletak.takscheduler.api.model.event.EventEntity;
@@ -13,12 +13,13 @@ import com.simpletak.takscheduler.api.model.event.EventFreq;
 import com.simpletak.takscheduler.api.model.event.scheduling.EventSchedulingByCronDTO;
 import com.simpletak.takscheduler.api.model.event.scheduling.EventSchedulingByDateDTO;
 import com.simpletak.takscheduler.api.model.eventGroup.EventGroupEntity;
+import com.simpletak.takscheduler.api.model.subscription.SubscriptionEntity;
 import com.simpletak.takscheduler.api.repository.event.EventRepository;
+import com.simpletak.takscheduler.api.repository.subscription.SubscriptionRepository;
 import com.simpletak.takscheduler.api.service.event.scheduling.EventRunnableTask;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
 import org.springframework.context.ApplicationContext;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.quartz.CronExpression;
 import org.springframework.scheduling.support.CronTrigger;
@@ -26,9 +27,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -40,6 +40,7 @@ public class EventService {
     private final EventRepository eventRepository;
     private final EventMapper mapper;
     private final ApplicationContext applicationContext;
+    private final SubscriptionRepository subscriptionRepository;
 
     public EventDTO findEventById(UUID id) {
         return mapper.fromEntity(eventRepository.findById(id).orElseThrow(EventNotFoundException::new));
@@ -116,19 +117,19 @@ public class EventService {
             period = DAY_IN_MILISECONDS * DAY_IN_WEEK;
             taskScheduler.scheduleWithFixedDelay(
                     task,
-                    eventEntity.getEventDate(),
+                    eventEntity.getNextEventDate(),
                     period
             );
         } else if (eventEntity.getEventFreq().equals(EventFreq.DAILY)) {
             taskScheduler.scheduleWithFixedDelay(
                     task,
-                    eventEntity.getEventDate(),
+                    eventEntity.getNextEventDate(),
                     period
             );
         } else {
             taskScheduler.schedule(
                     task,
-                    eventEntity.getEventDate()
+                    eventEntity.getNextEventDate()
             );
         }
 
@@ -141,7 +142,7 @@ public class EventService {
                 .findById(eventSchedulingByDateDTO.getEventID())
                 .orElseThrow(UserNotFoundException::new);
 
-        eventEntity.setEventDate(eventSchedulingByDateDTO.getExecutionDate());
+        eventEntity.setNextEventDate(eventSchedulingByDateDTO.getExecutionDate());
         eventRepository.save(eventEntity);
         scheduleEventByDate(eventEntity);
     }
@@ -178,5 +179,30 @@ public class EventService {
         String day = cron.substring(9, 11);
         String month = cron.substring(12, 14);
         return String.format("%s-%s-%sT%s:%s:00", LocalDate.now().getYear(), month, day, hour, minutes);
+    }
+
+    public List<EventDTO> eventsInMonth(Integer year, Integer month) {
+        UUID userId = (UUID) SecurityContextHolder.getContext().getAuthentication().getDetails();
+        validateYearAndMonth(year, month);
+        Calendar startRangeC = new GregorianCalendar(year, month-1, 1, 0, 0);
+        Date startRange = startRangeC.getTime();
+        startRangeC.add(Calendar.MONTH, 1);
+        Date endRange = startRangeC.getTime();
+        List<SubscriptionEntity> subscriptionEntities = subscriptionRepository.findAllByUserEntity_Id(userId);
+        List<EventGroupEntity> eventGroups = subscriptionEntities
+                .stream()
+                .map(s -> s.getEventGroupEntity())
+                .collect(Collectors.toList());
+        return eventRepository.findAllByStartEventDateLessThanEqualAndEndEventDateGreaterThan(startRange, endRange)
+                .stream()
+                .filter(e -> eventGroups.contains(e.getEventGroup()) || true)
+                .map(mapper::fromEntity)
+                .collect(Collectors.toList());
+    }
+
+    private void validateYearAndMonth(Integer year, Integer month) {
+        if(!(year != null && year >= 2021 && year < 2121 && month != null && month >= 1 && month <= 12)){
+            throw new IncorrectYearOrTimeRangeException();
+        }
     }
 }

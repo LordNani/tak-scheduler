@@ -15,7 +15,7 @@ import java.util.UUID;
 public class EventDTO {
     public EventDTO(NewEventDTO eventDTO, UUID id) {
         this.id = id;
-        this.eventDate = eventDTO.getEventDate();
+        this.nextEventDate = eventDTO.getNextEventDate();
         this.eventTime = eventDTO.getEventTime();
         this.eventFreq = eventDTO.getEventFreq();
         this.isReoccurring = eventDTO.isReoccurring();
@@ -23,6 +23,8 @@ public class EventDTO {
         this.eventName = eventDTO.getEventName();
         this.eventDescription = eventDTO.getEventDescription();
         this.eventGroupId = eventDTO.getEventGroupId();
+        this.startEventDate = eventDTO.getNextEventDate();
+        this.endEventDate = eventDTO.getEndEventDate();
     }
     @NotNull
     private UUID id;
@@ -37,10 +39,14 @@ public class EventDTO {
     @NotNull
     private EventFreq eventFreq;
     @NotNull
-    private Date eventDate;
+    private Date nextEventDate;
     @NotNull
     private Date eventTime;
     @NotNull
     private UUID eventGroupId;
+    @NotNull
+    private Date startEventDate;
+    @NotNull
+    private Date endEventDate;
 
 }

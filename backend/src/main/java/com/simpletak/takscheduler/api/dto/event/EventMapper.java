@@ -29,16 +29,18 @@ public class EventMapper implements Mapper<EventEntity, EventDTO> {
                 .eventPriority(eventDTO.getEventPriority())
                 .isReoccurring(eventDTO.isReoccurring())
                 .eventFreq(eventDTO.getEventFreq())
-                .eventDate(eventDTO.getEventDate())
+                .nextEventDate(eventDTO.getNextEventDate())
                 .eventTime(eventDTO.getEventTime())
                 .eventGroup(eventGroup)
+                .startEventDate(eventDTO.getStartEventDate())
+                .endEventDate(eventDTO.getEndEventDate())
                 .build();
     }
 
     @Override
     public EventDTO fromEntity(EventEntity entity) {
         return new EventDTO(entity.getId(), entity.getEventName(), entity.getEventDescription(), entity.getEventPriority(),
-                entity.isReoccurring(), entity.getEventFreq(), entity.getEventDate(), entity.getEventTime(),
-                entity.getEventGroup().getId());
+                entity.isReoccurring(), entity.getEventFreq(), entity.getNextEventDate(), entity.getEventTime(),
+                entity.getEventGroup().getId(), entity.getStartEventDate(), entity.getEndEventDate());
     }
 }
