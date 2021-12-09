@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.time.YearMonth;
 import java.util.List;
 import java.util.UUID;
 
@@ -57,5 +56,12 @@ public class EventController {
     @GetMapping("/by-month/{year}/{month}")
     public Response<List<EventDTO>> eventsInMonth(@PathVariable("year") Integer year, @PathVariable("month") Integer month){
         return Response.success(eventService.eventsInMonth(year, month));
+    }
+
+    @GetMapping("/by-day/{year}/{month}/{day}")
+    public Response<List<EventDTO>> eventsWithinDay(@PathVariable("year") Integer year,
+                                                  @PathVariable("month") Integer month,
+                                                  @PathVariable("day") Integer day){
+        return Response.success(eventService.eventsWithinDay(year, month, day));
     }
 }

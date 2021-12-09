@@ -30,7 +30,7 @@ public class EventMapper implements Mapper<EventEntity, EventDTO> {
                 .isReoccurring(eventDTO.isReoccurring())
                 .eventFreq(eventDTO.getEventFreq())
                 .nextEventDate(eventDTO.getNextEventDate())
-                .eventTime(eventDTO.getEventTime())
+//                .eventTime(eventDTO.getEventTime())
                 .eventGroup(eventGroup)
                 .startEventDate(eventDTO.getStartEventDate())
                 .endEventDate(eventDTO.getEndEventDate())
@@ -40,7 +40,8 @@ public class EventMapper implements Mapper<EventEntity, EventDTO> {
     @Override
     public EventDTO fromEntity(EventEntity entity) {
         return new EventDTO(entity.getId(), entity.getEventName(), entity.getEventDescription(), entity.getEventPriority(),
-                entity.isReoccurring(), entity.getEventFreq(), entity.getNextEventDate(), entity.getEventTime(),
+                entity.isReoccurring(), entity.getEventFreq(), entity.getNextEventDate(),
+//                entity.getEventTime(),
                 entity.getEventGroup().getId(), entity.getStartEventDate(), entity.getEndEventDate());
     }
 }

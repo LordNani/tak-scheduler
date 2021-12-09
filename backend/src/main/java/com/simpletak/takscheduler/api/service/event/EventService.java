@@ -27,6 +27,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -188,15 +190,103 @@ public class EventService {
         Date startRange = startRangeC.getTime();
         startRangeC.add(Calendar.MONTH, 1);
         Date endRange = startRangeC.getTime();
+        return getSubscribedEventsInTimeRange(startRange, endRange, userId);
+    }
+
+    public List<EventDTO> eventsWithinDay(Integer year, Integer month, Integer day) {
+        UUID userId = (UUID) SecurityContextHolder.getContext().getAuthentication().getDetails();
+        validateYearAndMonthAndDay(year, month, day);
+        Calendar startRangeC = new GregorianCalendar(year, month-1, day, 0, 0);
+        Date startRange = startRangeC.getTime();
+        startRangeC.add(Calendar.DAY_OF_MONTH, 1);
+        Date endRange = startRangeC.getTime();
+        return getSubscribedEventsInTimeRange(startRange, endRange, userId);
+    }
+
+    private List<EventDTO> getSubscribedEventsInTimeRange(Date startRange, Date endRange, UUID userId) {
         List<SubscriptionEntity> subscriptionEntities = subscriptionRepository.findAllByUserEntity_Id(userId);
         List<EventGroupEntity> eventGroups = subscriptionEntities
                 .stream()
                 .map(SubscriptionEntity::getEventGroupEntity)
                 .collect(Collectors.toList());
-        return eventRepository.findAllByStartEventDateLessThanEqualAndEndEventDateGreaterThanAndEventGroupIn(endRange, startRange, eventGroups)
+        List<EventEntity> events = eventRepository.findAllByStartEventDateLessThanEqualAndEndEventDateGreaterThanAndEventGroupIn(endRange, startRange, eventGroups);
+        List<EventEntity> reoccurringEvents = events
+                .stream()
+                .filter(EventEntity::isReoccurring)
+                .collect(Collectors.toList());
+        events.addAll(getRepeatedEventsInTimeRange(startRange, endRange, reoccurringEvents));
+        return events
                 .stream()
                 .map(mapper::fromEntity)
                 .collect(Collectors.toList());
+    }
+
+    private List<EventEntity> getRepeatedEventsInTimeRange(Date startRange, Date endRange, List<EventEntity> reoccurringEvents) {
+        LinkedList<EventEntity> events = new LinkedList<>();
+        while(!events.isEmpty()){
+            EventEntity reoccurringEvent = events.pop();
+            Calendar actualStartDateInInterval = new GregorianCalendar();
+            actualStartDateInInterval.setTime(reoccurringEvent.getStartEventDate());
+            Calendar actualEndDateInInterval = new GregorianCalendar();
+            actualEndDateInInterval.setTime(reoccurringEvent.getEndEventDate().compareTo(endRange) > 0 ?
+                    endRange : reoccurringEvent.getEndEventDate());
+            if(actualStartDateInInterval.compareTo(actualEndDateInInterval) >= 0) continue;
+            if(reoccurringEvent.getStartEventDate().compareTo(startRange) < 0){
+                actualStartDateInInterval = getActualStartDateInRange(reoccurringEvent.getStartEventDate(), reoccurringEvent.getEventFreq(), startRange);
+            }
+            int incrementField = reoccurringEvent.getEventFreq().getType().equals(EventFreq.DAILY) ?
+                    Calendar.DAY_OF_MONTH : Calendar.WEEK_OF_MONTH;
+            for(Calendar currentDate = (Calendar) actualEndDateInInterval.clone();
+                currentDate.compareTo(actualEndDateInInterval) < 0;
+                currentDate.add(incrementField, 1)){
+                EventEntity clone = reoccurringEvent.clone();
+                clone.setNextEventDate(currentDate.getTime());
+                events.add(clone);
+            }
+        }
+        return events;
+    }
+
+    private Calendar getActualStartDateInRange(Date earlierDate, EventFreq eventFreq, Date date) {
+        Calendar earlierCalendar = new GregorianCalendar();
+        earlierCalendar.setTime(earlierDate);
+        Calendar calendar = new GregorianCalendar();
+        calendar.setTime(date);
+        if(eventFreq.equals(EventFreq.DAILY)){
+            if(timeOfDayCompare(earlierCalendar, calendar) < 0){
+                calendar.add(Calendar.DAY_OF_MONTH, 1);
+            }
+            earlierCalendar.set(Calendar.YEAR, calendar.get(Calendar.YEAR));
+            earlierCalendar.set(Calendar.DAY_OF_MONTH, 1); //Precaution
+            earlierCalendar.set(Calendar.MONTH, calendar.get(Calendar.MONTH));
+            earlierCalendar.set(Calendar.DAY_OF_MONTH, calendar.get(Calendar.DAY_OF_MONTH));
+            return earlierCalendar;
+        }
+        else{
+            long daysBetween = ChronoUnit.DAYS.between(
+                    LocalDateTime.ofInstant(earlierCalendar.toInstant(), earlierCalendar.getTimeZone().toZoneId()),
+                    LocalDateTime.ofInstant(calendar.toInstant(), calendar.getTimeZone().toZoneId()));
+            int amountOfWeeks = (int) (daysBetween/7);
+            earlierCalendar.add(Calendar.WEEK_OF_YEAR, amountOfWeeks);
+            if(earlierCalendar.compareTo(calendar) < 0) earlierCalendar.add(Calendar.WEEK_OF_YEAR, 1);
+            return earlierCalendar;
+        }
+    }
+
+    private int timeOfDayCompare(Calendar earlierCalendar, Calendar calendar) {
+        Calendar clone = (Calendar) calendar.clone();
+        clone.set(Calendar.YEAR, earlierCalendar.get(Calendar.YEAR));
+        clone.set(Calendar.DAY_OF_MONTH, 1); //Precaution
+        clone.set(Calendar.MONTH, earlierCalendar.get(Calendar.MONTH));
+        clone.set(Calendar.DAY_OF_MONTH, earlierCalendar.get(Calendar.DAY_OF_MONTH));
+        return earlierCalendar.compareTo(clone);
+    }
+
+    private void validateYearAndMonthAndDay(Integer year, Integer month, Integer day) {
+        validateYearAndMonth(year, month);
+        Calendar calendar = new GregorianCalendar(year, month, 1);
+        int maxDay = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
+        if(day < 1 || day > maxDay) throw new IncorrectYearOrTimeRangeException();
     }
 
     private void validateYearAndMonth(Integer year, Integer month) {

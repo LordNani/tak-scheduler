@@ -95,7 +95,6 @@ public class ApplicationListenerInitialize implements ApplicationListener<Applic
                         .nextEventDate(now.getTime())
                         .startEventDate(start.getTime())
                         .endEventDate(end.getTime())
-                        .eventTime(new Date())
                         .eventPriority(EventPriority.HIGH)
                         .eventFreq(EventFreq.DAILY)
                         .build();

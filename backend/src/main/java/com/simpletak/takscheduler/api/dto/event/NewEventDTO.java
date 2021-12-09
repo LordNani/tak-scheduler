@@ -23,8 +23,8 @@ public class NewEventDTO {
     private EventFreq eventFreq;
     @NotNull
     private Date nextEventDate;
-    @NotNull
-    private Date eventTime;
+//    @NotNull
+//    private Date eventTime;
     @NotNull
     private UUID eventGroupId;
     @NotNull

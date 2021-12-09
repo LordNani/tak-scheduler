@@ -16,15 +16,21 @@ public class EventDTO {
     public EventDTO(NewEventDTO eventDTO, UUID id) {
         this.id = id;
         this.nextEventDate = eventDTO.getNextEventDate();
-        this.eventTime = eventDTO.getEventTime();
+//        this.eventTime = eventDTO.getEventTime();
         this.eventFreq = eventDTO.getEventFreq();
         this.isReoccurring = eventDTO.isReoccurring();
         this.eventPriority = eventDTO.getEventPriority();
         this.eventName = eventDTO.getEventName();
         this.eventDescription = eventDTO.getEventDescription();
         this.eventGroupId = eventDTO.getEventGroupId();
-        this.startEventDate = eventDTO.getNextEventDate();
-        this.endEventDate = eventDTO.getEndEventDate();
+        if(eventDTO.isReoccurring()){
+            this.startEventDate = eventDTO.getNextEventDate();
+            this.endEventDate = eventDTO.getEndEventDate();
+        }
+        else{
+            this.startEventDate = eventDTO.getNextEventDate();
+            this.endEventDate = eventDTO.getNextEventDate();
+        }
     }
     @NotNull
     private UUID id;
@@ -40,8 +46,8 @@ public class EventDTO {
     private EventFreq eventFreq;
     @NotNull
     private Date nextEventDate;
-    @NotNull
-    private Date eventTime;
+//    @NotNull
+//    private Date eventTime;
     @NotNull
     private UUID eventGroupId;
     @NotNull
