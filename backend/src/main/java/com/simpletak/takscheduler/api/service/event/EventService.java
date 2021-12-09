@@ -6,7 +6,7 @@ import com.simpletak.takscheduler.api.dto.event.NewEventDTO;
 import com.simpletak.takscheduler.api.exception.InvalidCronExpressionException;
 import com.simpletak.takscheduler.api.exception.event.EventNotFoundException;
 import com.simpletak.takscheduler.api.exception.event.IncorrectYearOrTimeRangeException;
-import com.simpletak.takscheduler.api.exception.user.UserIsNotPermittedException;
+import com.simpletak.takscheduler.api.exception.user.UserIsNotAuthorizedException;
 import com.simpletak.takscheduler.api.exception.user.UserNotFoundException;
 import com.simpletak.takscheduler.api.model.event.EventEntity;
 import com.simpletak.takscheduler.api.model.event.EventFreq;
@@ -57,7 +57,7 @@ public class EventService {
         boolean isOwned = eventGroupEntity.getOwner().getId().equals(userId);
 
         if (!isOwned) {
-            throw new UserIsNotPermittedException("You are not authorized to edit this event group.");
+            throw new UserIsNotAuthorizedException("You are not authorized to edit this event group.");
         }
 
         return mapper.fromEntity(eventRepository.saveAndFlush(eventEntity));
@@ -70,7 +70,7 @@ public class EventService {
 
         EventGroupEntity eventGroupEntity = eventEntity.getEventGroup();
         if (!userId.equals(eventGroupEntity.getOwner().getId())) {
-            throw new UserIsNotPermittedException("You are not authorized to edit this event.");
+            throw new UserIsNotAuthorizedException("You are not authorized to edit this event.");
         }
 
         if (!eventRepository.existsById(eventDTO.getId())) throw new EventNotFoundException();
@@ -86,7 +86,7 @@ public class EventService {
 
         EventGroupEntity eventGroupEntity = eventEntity.getEventGroup();
         if (!userId.equals(eventGroupEntity.getOwner().getId())) {
-            throw new UserIsNotPermittedException("You are not authorized to delete this event.");
+            throw new UserIsNotAuthorizedException("You are not authorized to delete this event.");
         }
 
         eventRepository.deleteById(id);
