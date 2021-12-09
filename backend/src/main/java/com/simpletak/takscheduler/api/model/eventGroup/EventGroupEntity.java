@@ -1,12 +1,14 @@
 package com.simpletak.takscheduler.api.model.eventGroup;
 
 
+import com.simpletak.takscheduler.api.model.tagEventGroup.TagEventGroupEntity;
 import com.simpletak.takscheduler.api.model.user.UserEntity;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
+import java.util.List;
 import java.util.UUID;
 
 @Builder
@@ -37,4 +39,7 @@ public class EventGroupEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="owner_id", nullable = false)
     private UserEntity owner;
+
+    @OneToMany(cascade = {CascadeType.ALL}, mappedBy = "eventGroupEntity")
+    private List<TagEventGroupEntity> tagEventGroupEntities;
 }
