@@ -44,14 +44,14 @@ public class EventGroupService {
     public EventGroupDTO findEventGroupById(UUID id) {
         EventGroupEntity eventGroupEntity = eventGroupRepository.findById(id).orElseThrow(EventGroupNotFoundException::new);
         EventGroupDTO eventGroupDTO = mapper.fromEntity(eventGroupEntity);
-
-        setSubscriptionAndOwnedToEventGroupDTO(eventGroupDTO);
+        UUID userId = (UUID) SecurityContextHolder.getContext().getAuthentication().getDetails();
+        setSubscriptionAndOwnedToEventGroupDTO(eventGroupDTO, userId);
 
         return eventGroupDTO;
     }
 
-    private void setSubscriptionAndOwnedToEventGroupDTO(EventGroupDTO eventGroupDTO) {
-        UUID userId = (UUID) SecurityContextHolder.getContext().getAuthentication().getDetails();
+    private void setSubscriptionAndOwnedToEventGroupDTO(EventGroupDTO eventGroupDTO,  UUID userId) {
+
         UUID eventGroupId = eventGroupDTO.getId();
         boolean subscribed = subscriptionRepository.existsByEventGroupEntity_IdAndUserEntity_Id(eventGroupId, userId);
         eventGroupDTO.setSubscribed(subscribed);
@@ -63,7 +63,8 @@ public class EventGroupService {
     public EventGroupDTO createEventGroup(NewEventGroupDTO eventGroupDTO, UUID userId) {
         EventGroupEntity eventGroupEntity = mapper.toEntity(new EventGroupDTO(eventGroupDTO, null, userId));
         EventGroupDTO savedDto =  mapper.fromEntity(eventGroupRepository.saveAndFlush(eventGroupEntity));
-        setSubscriptionAndOwnedToEventGroupDTO(savedDto);
+
+        setSubscriptionAndOwnedToEventGroupDTO(savedDto, userId);
         return savedDto;
     }
 
@@ -78,7 +79,7 @@ public class EventGroupService {
         }
 
         EventGroupDTO savedDto = mapper.fromEntity(eventGroupRepository.saveAndFlush(eventGroupEntity));
-        setSubscriptionAndOwnedToEventGroupDTO(savedDto);
+        setSubscriptionAndOwnedToEventGroupDTO(savedDto, userId);
         return savedDto;
     }
 
@@ -106,9 +107,9 @@ public class EventGroupService {
         List<EventGroupDTO> eventGroupDTOs = eventGroupRepository.findAllById(eventGroups).stream()
                 .map(mapper::fromEntity)
                 .collect(Collectors.toList());
-
+        UUID userId = (UUID) SecurityContextHolder.getContext().getAuthentication().getDetails();
         for (EventGroupDTO eventGroupDTO : eventGroupDTOs) {
-            setSubscriptionAndOwnedToEventGroupDTO(eventGroupDTO);
+            setSubscriptionAndOwnedToEventGroupDTO(eventGroupDTO, userId);
         }
 
         return eventGroupDTOs;
@@ -127,7 +128,7 @@ public class EventGroupService {
         Page<EventGroupDTO> eventGroupDTOs = eventGroupEntities.map(mapper::fromEntity);
 
         for (EventGroupDTO eventGroupDTO : eventGroupDTOs) {
-            setSubscriptionAndOwnedToEventGroupDTO(eventGroupDTO);
+            setSubscriptionAndOwnedToEventGroupDTO(eventGroupDTO, userId);
         }
         return eventGroupDTOs;
     }
