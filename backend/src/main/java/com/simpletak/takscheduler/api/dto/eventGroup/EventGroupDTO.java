@@ -16,13 +16,13 @@ public class EventGroupDTO{
 
     public EventGroupDTO(NewEventGroupDTO base, UUID id, UUID ownerId){
         this.eventGroupDescription = base.getEventGroupDescription();
-        this.eventName = base.getEventGroupName();
+        this.eventGroupName = base.getEventGroupName();
         this.ownerId = ownerId;
         this.id = id;
     }
 
     @NotNull
-    private String eventName;
+    private String eventGroupName;
     @NotNull
     private String eventGroupDescription;
     @NotNull

@@ -89,7 +89,7 @@ public class ApplicationListenerInitialize implements ApplicationListener<Applic
                 GregorianCalendar end = (GregorianCalendar) now.clone();
                 end.add(Calendar.DAY_OF_MONTH, 2+i);
                 EventEntity eventEntity = EventEntity.builder()
-                        .eventName("| nameEvent" + i + eventGroupDTO.getEventName())
+                        .eventName("| nameEvent" + i + eventGroupDTO.getEventGroupName())
                         .eventGroup(e)
                         .eventDescription("name" + i)
                         .nextEventDate(now.getTime())

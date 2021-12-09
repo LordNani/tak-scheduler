@@ -123,6 +123,9 @@ public class MainController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication.getDetails() instanceof UUID) {
             addRoleAttribute(model, authentication);
+            List<EventGroupDTO> eventGroupDTOS =
+                    eventGroupService.getEventGroupsByUser(0, 50).getContent();
+            model.addAttribute("eventGroups", eventGroupDTOS);
             return "my-event-groups";
         } else {
             return "auth";
