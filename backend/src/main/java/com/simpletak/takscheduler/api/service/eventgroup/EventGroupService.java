@@ -4,7 +4,7 @@ import com.simpletak.takscheduler.api.dto.eventGroup.EventGroupDTO;
 import com.simpletak.takscheduler.api.dto.eventGroup.EventGroupMapper;
 import com.simpletak.takscheduler.api.dto.eventGroup.NewEventGroupDTO;
 import com.simpletak.takscheduler.api.exception.eventgroup.EventGroupNotFoundException;
-import com.simpletak.takscheduler.api.exception.user.UserIsNotPermittedException;
+import com.simpletak.takscheduler.api.exception.user.UserIsNotAuthorizedException;
 import com.simpletak.takscheduler.api.exception.user.UserNotFoundException;
 import com.simpletak.takscheduler.api.model.eventGroup.EventGroupEntity;
 import com.simpletak.takscheduler.api.model.user.UserEntity;
@@ -15,9 +15,7 @@ import com.simpletak.takscheduler.api.repository.tagEventGroup.TagEventGroupRepo
 import com.simpletak.takscheduler.api.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
-import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -70,7 +68,7 @@ public class EventGroupService {
         EventGroupEntity eventGroupEntity = mapper.toEntity(eventGroupDTO);
 
         if (!userId.equals(eventGroupEntity.getOwner().getId())) {
-            throw new UserIsNotPermittedException("You are not authorized to edit this event group.");
+            throw new UserIsNotAuthorizedException("You are not authorized to edit this event group.");
         }
 
         return mapper.fromEntity(eventGroupRepository.saveAndFlush(eventGroupEntity));
@@ -84,7 +82,7 @@ public class EventGroupService {
                 .orElseThrow(EventGroupNotFoundException::new);
 
         if (!userId.equals(eventGroupEntity.getOwner().getId())) {
-            throw new UserIsNotPermittedException("You are not authorized to delete this event group.");
+            throw new UserIsNotAuthorizedException("You are not authorized to delete this event group.");
         }
 
         eventGroupRepository.deleteById(id);
