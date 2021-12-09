@@ -7,6 +7,7 @@ import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
+import java.util.List;
 import java.util.UUID;
 
 @Builder
@@ -36,4 +37,5 @@ public class TagEventGroupEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="tag_id", nullable = false)
     private TagEntity tag;
+
 }

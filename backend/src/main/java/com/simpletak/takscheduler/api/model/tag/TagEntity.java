@@ -1,10 +1,12 @@
 package com.simpletak.takscheduler.api.model.tag;
 
+import com.simpletak.takscheduler.api.model.tagEventGroup.TagEventGroupEntity;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
+import java.util.List;
 import java.util.UUID;
 
 
@@ -29,4 +31,7 @@ public class TagEntity {
 
     @Column(name = "tagName", length = 64)
     private String tagName;
+
+    @OneToMany(cascade = {CascadeType.ALL}, mappedBy = "tag")
+    private List<TagEventGroupEntity> tagEventGroupEntities;
 }
