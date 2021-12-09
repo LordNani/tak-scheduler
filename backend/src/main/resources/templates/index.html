@@ -21,11 +21,6 @@
 <div class="root">
     <section class="ftco-section">
         <div class="container">
-            <div class="row justify-content-center">
-                <div class="col-md-6 text-center mb-5">
-                    <h2 class="heading-section">Calendar #01</h2>
-                </div>
-            </div>
             <div class="row">
                 <div class="col-md-12">
                     <div class="calendar calendar-first" id="calendar_first">
@@ -41,17 +36,28 @@
             </div>
         </div>
     </section>
-    <div class="events"></div>
+    <div class="events-container"></div>
 </div>
 <script>
     let eventsOfMonth = new Map();
     let currentYear;
     let currentMonth;
     async function displayEventsAt(year, month, day){
-        if(year != currentYear || month != currentMonth){
+        if(year !== currentYear || month !== currentMonth){
             await loadEvents(year, month)
         }
-        console.log(eventsOfMonth.get(day))
+        const eventsContainer = document.querySelector('.events-container')
+        eventsContainer.innerHTML=""
+        const events = eventsOfMonth.get(day)
+        if(events !== undefined){
+            events.sort((a, b)=>{
+                return parseInt(a.time.getTime()) - parseInt(b.time.getTime())
+            })
+            events.forEach(event => {
+                eventsContainer.append(displayEvent(event))
+            })
+        }
+
     }
     async function loadEvents(year, month){
         fetch('/api/events/by-month/'+year+'/'+month)
@@ -62,10 +68,29 @@
                 let datetime = new Date(event.nextEventDate)
                 let updatedList = eventsOfMonth.get(datetime.getDate())
                 if(updatedList == null) updatedList = []
-                updatedList.push(event)
+                updatedList.push({
+                    name : event.eventName,
+                    description : event.eventDescription,
+                    time : datetime
+                })
                 eventsOfMonth.set(datetime.getDate(), updatedList)
             })
         })
+    }
+
+    function displayEvent(event){
+        let rootEl = document.createElement("DIV")
+        rootEl.className = "event-item-root"
+        const name = document.createElement("P")
+        name.innerText = event.name
+        const eventDescription = document.createElement("P")
+        eventDescription.innerText  = event.description
+        const time = document.createElement("P")
+        time.innerText = event.time.getHours()+":"+event.time.getMinutes()
+        rootEl.insertBefore(name, null)
+        rootEl.insertBefore(eventDescription, name)
+        rootEl.insertBefore(time, eventDescription)
+        return rootEl
     }
 </script>
 </body>

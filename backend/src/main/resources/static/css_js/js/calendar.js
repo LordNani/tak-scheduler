@@ -28,9 +28,9 @@
                 if (
                 (
                 (shownDate != today.getDate() && passed_month == today.getMonth()) || passed_month != today.getMonth()) && iter_date < today) {
-                    var m = '<div class="past-date">';
+                    var m = '<div class="past-date '+hasEvents(shownDate)+'">';
                 } else {
-                    var m = checkToday(iter_date) ? '<div class="today">' : "<div>";
+                    var m = checkToday(iter_date) ? '<div class="today '+hasEvents(shownDate)+'">' : "<div>";
                 }
                 calendar.datesBody.append(m + shownDate + "</div>");
             }

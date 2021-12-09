@@ -8180,7 +8180,8 @@ h1, h2, h3, h4, h5,
   background-position: center center; }
 
 .calendar, .calendar_weekdays, .calendar_content {
-  max-width: 450px; }
+  /*max-width: 450px;*/
+}
 
 .calendar {
   margin: auto;
