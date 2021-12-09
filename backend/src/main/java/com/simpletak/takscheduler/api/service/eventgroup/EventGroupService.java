@@ -107,10 +107,8 @@ public class EventGroupService {
     }
 
     @Cacheable("eventGroups")
-    public Page<EventGroupDTO> getEventGroupsByUser(int page, int size) {
+    public Page<EventGroupDTO> getEventGroupsByUser(int page, int size, UUID userId) {
         log.info("In getEventGroups");
-
-        UUID userId = (UUID) SecurityContextHolder.getContext().getAuthentication().getDetails();
 
         Pageable pageConfig = PageRequest.of(page, size);
         UserEntity user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);

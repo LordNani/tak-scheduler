@@ -22,7 +22,7 @@ public class EventRunnableTask implements Runnable {
     public void run() {
         eventService.notifyUser(eventEntity);
 
-        log.info("Event with id " +  eventEntity.getId() +  " is running. Time: " + new Date());
+        System.out.println("Event with id " +  eventEntity.getId() +  " is running. Time: " + new Date());
     }
 
     public void setEventEntity(EventEntity eventEntity) {
