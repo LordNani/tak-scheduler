@@ -24,7 +24,7 @@ public class EventGroupMapper implements Mapper<EventGroupEntity, EventGroupDTO>
                 .orElseThrow(UserNotFoundException::new);
         return EventGroupEntity.builder()
                 .id(dto.getId())
-                .eventName(dto.getEventName())
+                .eventName(dto.getEventGroupName())
                 .eventGroupDescription(dto.getEventGroupDescription())
                 .owner(owner)
                 .build();
@@ -33,7 +33,7 @@ public class EventGroupMapper implements Mapper<EventGroupEntity, EventGroupDTO>
     @Override
     public EventGroupDTO fromEntity(EventGroupEntity entity) {
         return EventGroupDTO.builder()
-                .eventName(entity.getEventName())
+                .eventGroupName(entity.getEventName())
                 .eventGroupDescription(entity.getEventGroupDescription())
                 .ownerId(entity.getOwner().getId())
                 .id(entity.getId())

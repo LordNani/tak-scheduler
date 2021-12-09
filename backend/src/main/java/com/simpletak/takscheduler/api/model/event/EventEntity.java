@@ -17,8 +17,8 @@ import java.util.UUID;
 @NoArgsConstructor
 @Data
 @Entity
-@Table(name = "event", indexes = @Index(name = "dateIndex", columnList = "eventDate ASC, eventTime ASC"))
-public class EventEntity {
+@Table(name = "event", indexes = @Index(name = "dateIndex", columnList = "nextEventDate ASC, startEventDate ASC, endEventDate ASC"))
+public class EventEntity implements Cloneable {
     @Id
     @GeneratedValue(generator = "UUID")
     @GenericGenerator(
@@ -47,15 +47,40 @@ public class EventEntity {
     @Column(name = "execution_cron_date")
     private String eventCron;
 
-    @Column(name = "eventDate")
-    private Date eventDate;
-
-    @Column(name = "eventTime")
-    private Date eventTime;
+    @Column(name = "nextEventDate")
+    private Date nextEventDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="eventGroup_id", nullable = false)
     private EventGroupEntity eventGroup;
+
+    @Column(name = "startEventDate")
+    private Date startEventDate;
+
+    @Column(name = "endEventDate")
+    private Date endEventDate;
+
+    @Override
+    public EventEntity clone() {
+        try {
+            EventEntity clone = (EventEntity) super.clone();
+                        clone.setId(getId());
+                        clone.setEventName(getEventName());
+                        clone.setEventDescription(getEventDescription());
+                        clone.setEventPriority(getEventPriority());
+                        clone.setReoccurring(isReoccurring());
+                        clone.setEventFreq(getEventFreq());
+                        clone.setEventCron(getEventCron());
+                        clone.setNextEventDate((Date) getNextEventDate().clone());
+                        clone.setEventGroup(getEventGroup());
+                        clone.setStartEventDate(getStartEventDate());
+                        clone.setEndEventDate(getEndEventDate());
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
+    }
+
 
 //    private EventDateTime eventDateTime;
 
