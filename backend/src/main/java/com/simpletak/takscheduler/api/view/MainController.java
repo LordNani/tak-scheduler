@@ -124,7 +124,7 @@ public class MainController {
         if (authentication.getDetails() instanceof UUID) {
             addRoleAttribute(model, authentication);
             List<EventGroupDTO> eventGroupDTOS =
-                    eventGroupService.getEventGroupsByUser(0, 50).getContent();
+                    eventGroupService.getEventGroupsByUser(0, 50, (UUID) authentication.getDetails()).getContent();
             model.addAttribute("eventGroups", eventGroupDTOS);
             return "my-event-groups";
         } else {

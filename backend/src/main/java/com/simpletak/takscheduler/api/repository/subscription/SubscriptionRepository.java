@@ -15,4 +15,6 @@ public interface SubscriptionRepository extends JpaRepository<SubscriptionEntity
     void deleteByEventGroupEntity_IdAndUserEntity_Id(UUID eventGroupId, UUID userId);
 
     List<SubscriptionEntity> findAllByUserEntity_Id(UUID userId);
+
+    void deleteByEventGroupEntity_Id(UUID id);
 }
