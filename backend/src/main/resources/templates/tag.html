@@ -1,34 +1,78 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Tags</title>
-
-    <div th:replace="fragments/header :: header-links"/>
+    <div th:replace="fragments/header :: header-links" />
+    <link rel="stylesheet" th:href="@{/css_js/css/tag.css}">
 </head>
+
 <body>
-    <div th:replace="fragments/header :: header"/>
-    <h2>Tags:</h2>
+    <div th:replace="fragments/header :: header" />
+    <form class="p-3 py-5 create-tag-form">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4 class="text-right">Create tag</h4>
+        </div>
+        <div class="row mt-2">
+            <label class="labels">Tag name</label>
+            <input name="tagName" class="form-control" type="text" placeholder="name" value="" />
+        </div>
+        <div class="row mt-2">
+            <label class="labels">Tag Color</label>
+            <input type="color" id="colorwh" name="tagColor" value="#e66465">
+        </div>
+        <div class="mt-5 text-center">
+            <button class="btn btn-primary create-tag-submit" type="submit">Save Tag</button>
+        </div>
+    </form>
     <div class="tag-container">
         <div th:each="tag : ${allTags}" class="tag-item">
             <p th:text="${tag.tagName}" />
-            <button type="button" th:text="Delete" th:value="${tag.id}" onclick="deleteItem(this.value)"/>
+            <button type="button" th:text="Delete" th:value="${tag.id}" onclick="deleteItem(this.value)" />
         </div>
     </div>
 
-<script>
-    function deleteItem(tagId){
-        fetch(`/api/tags/${tagId}`, {
-            method: "DELETE",
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'Authorisation': sessionStorage.getItem("token")
-            }
-        }).then(
-            () => window.location='/view/tag'
-        )
-    }
-</script>
+    <script>
+        window.onload = () => {
+            const form = document.querySelector('.create-tag-form')
+            const submitBtn = document.querySelector('.create-tag-submit')
+            form.addEventListener('submit', e => {
+                e.preventDefault();
+                const formData = {
+                    tagName: form.querySelector('[name="tagName"]').value,
+                    tagColor: form.querySelector('[name="tagColor"]').value,
+                }
+                console.log(formData)
+                fetch('/api/tags', {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                }).then(res => {
+                    window.location = '/view/tag'
+                }).catch(err => {
+                    console.error(err.message)
+                    alert(err.message)
+                })
+            })
+        }
+
+        function deleteItem(tagId) {
+            fetch(`/api/tags/${tagId}`, {
+                method: "DELETE",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'Authorisation': sessionStorage.getItem("token")
+                }
+            }).then(
+                () => window.location = '/view/tag'
+            )
+        }
+    </script>
 </body>
+
 </html>

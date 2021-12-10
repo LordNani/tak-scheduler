@@ -1,22 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Create event group</title>
 
-    <div th:replace="fragments/header :: header-links"/>
+    <div th:replace="fragments/header :: header-links" />
     <link rel="stylesheet" th:href="@{/css_js/css/create-event-group.css}">
 </head>
+
 <body>
-    <div th:replace="fragments/header :: header"/>
+    <div th:replace="fragments/header :: header" />
     <form class="p-3 py-5 create-event-group-form">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h4 class="text-right">Event group creation</h4>
         </div>
         <div class="row mt-2">
             <label class="labels">Event group name</label>
-            <input type="text" name="eventGroupName" class="form-control" placeholder="enter event group name"
-                   value="">
+            <input type="text" name="eventGroupName" class="form-control" placeholder="enter event group name" value="">
         </div>
         <div class="row mt-2">
             <label class="labels">Event group description</label>
@@ -29,10 +30,10 @@
         </div>
     </form>
     <script>
-        window.onload=()=>{
+        window.onload = () => {
             const form = document.querySelector('.create-event-group-form')
             const submitBtn = document.querySelector('.create-event-group-submit')
-            form.addEventListener('submit', e=>{
+            form.addEventListener('submit', e => {
                 e.preventDefault();
                 const formData = {
                     eventGroupName: form.querySelector('[name="eventGroupName"]').value,
@@ -46,7 +47,7 @@
                     },
                     body: JSON.stringify(formData)
                 }).then(res => {
-                    window.location='/view/my-event-groups'
+                    window.location = '/view/my-event-groups'
                 }).catch(err => {
                     console.error(err.message)
                     alert(err.message)
@@ -55,4 +56,5 @@
         }
     </script>
 </body>
+
 </html>

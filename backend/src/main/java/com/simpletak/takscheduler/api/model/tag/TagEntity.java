@@ -32,6 +32,9 @@ public class TagEntity {
     @Column(name = "tagName", length = 64)
     private String tagName;
 
+    @Column(name = "tagColor", length = 7)
+    private String tagColor;
+
     @OneToMany(cascade = {CascadeType.ALL}, mappedBy = "tag")
     private List<TagEventGroupEntity> tagEventGroupEntities;
 }

@@ -1,82 +1,76 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
 </head>
+
 <body>
     <div th:fragment="list">
         <div th:each="eventGroup : ${eventGroups}">
             <span th:text="${eventGroup.eventGroupName}"></span>
             <span th:text="${eventGroup.eventGroupDescription}"></span>
-            <button th:if="${eventGroup.isOwned}"
-                    type="button"
-                    th:value="${eventGroup.id}"
-                    onclick="deleteEventGroup(this.value)"
-                    >Delete</button>
-            <button th:if="${!eventGroup.isSubscribed}"
-                    type="button"
-                    th:value="${eventGroup.id}"
-                    onclick="subscribeToEventGroup(this.value)"
-                >Subscribe</button>
-            <button th:if="${eventGroup.isSubscribed}"
-                    type="button"
-                    th:value="${eventGroup.id}"
-                    onclick="unsubscribeFromEventGroup(this.value)"
-            >Unsubscribe</button>
+            <button th:if="${eventGroup.isOwned}" type="button" th:value="${eventGroup.id}"
+                onclick="deleteEventGroup(this.value)">Delete</button>
+            <button th:if="${!eventGroup.isSubscribed}" type="button" th:value="${eventGroup.id}"
+                onclick="subscribeToEventGroup(this.value)">Subscribe</button>
+            <button th:if="${eventGroup.isSubscribed}" type="button" th:value="${eventGroup.id}"
+                onclick="unsubscribeFromEventGroup(this.value)">Unsubscribe</button>
         </div>
         <script>
             // window.onload=()=>{
-                function subscribeToEventGroup(id){
-                    const formData = {
-                        eventGroupID: id
-                    }
-                    fetch('/api/subscription/', {
-                        method: 'POST',
-                        headers: {
-                            'Accept': 'application/json',
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(formData)
-                    }).then(res => {
-                        window.location.reload(true)
-                    }).catch(err => {
-                        console.error(err.message)
-                        alert(err.message)
-                    })
+            function subscribeToEventGroup(id) {
+                const formData = {
+                    eventGroupID: id
                 }
+                fetch('/api/subscription/', {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                }).then(res => {
+                    window.location.reload(true)
+                }).catch(err => {
+                    console.error(err.message)
+                    alert(err.message)
+                })
+            }
 
-                function unsubscribeFromEventGroup(id) {
-                    const formData = {
-                        eventGroupID: id
-                    }
-                    fetch('/api/subscription/', {
-                        method: 'DELETE',
-                        headers: {
-                            // 'Accept': 'application/json',
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(formData)
-                    }).then(res => {
-                        window.location.reload(true)
-                    }).catch(err => {
-                        console.error(err.message)
-                        alert(err.message)
-                    })
+            function unsubscribeFromEventGroup(id) {
+                const formData = {
+                    eventGroupID: id
                 }
+                fetch('/api/subscription/', {
+                    method: 'DELETE',
+                    headers: {
+                        // 'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                }).then(res => {
+                    window.location.reload(true)
+                }).catch(err => {
+                    console.error(err.message)
+                    alert(err.message)
+                })
+            }
 
-                function deleteEventGroup(id){
-                    fetch('/api/event-groups/'+id, {
-                        method: 'DELETE'
-                    }).then(res => {
-                        window.location.reload(true)
-                    }).catch(err => {
-                        console.error(err.message)
-                        alert(err.message)
-                    })
-                }
+            function deleteEventGroup(id) {
+                fetch('/api/event-groups/' + id, {
+                    method: 'DELETE'
+                }).then(res => {
+                    window.location.reload(true)
+                }).catch(err => {
+                    console.error(err.message)
+                    alert(err.message)
+                })
+            }
             // }
         </script>
     </div>
 </body>
+
 </html>

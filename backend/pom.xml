@@ -18,6 +18,9 @@
 
 		<profile>
 			<id>develop</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
 			<properties>
 				<java.version>11</java.version>
 				<jjwt.version>0.9.1</jjwt.version>
@@ -41,9 +44,6 @@
 
 		<profile>
 			<id>production</id>
-			<activation>
-				<activeByDefault>true</activeByDefault>
-			</activation>
 			<properties>
 				<java.version>11</java.version>
 				<jjwt.version>0.9.1</jjwt.version>
