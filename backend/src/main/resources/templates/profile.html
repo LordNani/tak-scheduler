@@ -15,34 +15,33 @@
 </head>
 
 <body>
-    <div th:replace="fragments/header :: header" />
-    <div class="container rounded bg-white mt-5 mb-5">
-        <div class="row">
-            <div class="col-md-5 border-right">
-                <div class="d-flex flex-column align-items-center text-center p-3 py-5">
-                    <span class="font-weight-bold" th:text="${fullName}"></span>
-                    <span class="text-black-50" th:text="${username}"></span>
-                    <span> </span></div>
-            </div>
-            <div class="col-md-7 border-right">
-                <form class="p-3 py-5" th:action="@{/api/users/}" method="post" th:object="${EditUserRequestDTO}">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h4 class="text-right">Profile Settings</h4>
-                    </div>
-                    <!--                <input hidden name="id" th:field="*{id}" th:attr="value=${id}">-->
-                    <!--                <div class="row mt-2">-->
-                    <!--                    <label class="labels">Full name</label>-->
-                    <!--                    <input type="text" th:field="*{fullName}" class="form-control" placeholder="enter full name" value="">-->
-                    <!--                </div>-->
-                    <!--                <div class="row mt-2">-->
-                    <!--                    <label class="labels">Username</label>-->
-                    <!--                    <input type="text" th:field="*{username}" class="form-control" placeholder="enter username" value="">-->
-                    <!--                </div>-->
-                    <div class="mt-5 text-center">
-                        <button class="btn btn-primary profile-button" type="submit">Save Profile</button>
-                    </div>
-                </form>
-            </div>
+<div th:replace="fragments/header :: header" />
+<div class="container rounded bg-white mt-5 mb-5">
+    <div class="row">
+        <div class="col-md-5 border-right">
+            <div class="d-flex flex-column align-items-center text-center p-3 py-5">
+                <span class="font-weight-bold" th:text="${fullName}"></span>
+                <span class="text-black-50" th:text="${username}"></span>
+                <span> </span></div>
+        </div>
+        <div class="col-md-7 border-right">
+            <form class="p-3 py-5">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 class="text-right">Profile Settings</h4>
+                </div>
+<!--                <input hidden name="id" th:field="*{id}" th:attr="value=${id}">-->
+<!--                <div class="row mt-2">-->
+<!--                    <label class="labels">Full name</label>-->
+<!--                    <input type="text" th:field="*{fullName}" class="form-control" placeholder="enter full name" value="">-->
+<!--                </div>-->
+<!--                <div class="row mt-2">-->
+<!--                    <label class="labels">Username</label>-->
+<!--                    <input type="text" th:field="*{username}" class="form-control" placeholder="enter username" value="">-->
+<!--                </div>-->
+                <div class="mt-5 text-center">
+                    <button class="btn btn-primary profile-button" type="submit">Save Profile</button>
+                </div>
+            </form>
         </div>
     </div>
     </div>

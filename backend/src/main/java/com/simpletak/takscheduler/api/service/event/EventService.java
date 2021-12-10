@@ -210,12 +210,16 @@ public class EventService {
                 .map(SubscriptionEntity::getEventGroupEntity)
                 .collect(Collectors.toList());
         List<EventEntity> events = eventRepository.findAllByStartEventDateLessThanEqualAndEndEventDateGreaterThanAndEventGroupIn(endRange, startRange, eventGroups);
+        List<EventEntity> oneTimeEvents = events
+                .stream()
+                .filter(e -> !e.isReoccurring())
+                .collect(Collectors.toList());
         List<EventEntity> reoccurringEvents = events
                 .stream()
                 .filter(EventEntity::isReoccurring)
                 .collect(Collectors.toList());
-        events.addAll(getRepeatedEventsInTimeRange(startRange, endRange, reoccurringEvents));
-        return events
+        oneTimeEvents.addAll(getRepeatedEventsInTimeRange(startRange, endRange, reoccurringEvents));
+        return oneTimeEvents
                 .stream()
                 .map(mapper::fromEntity)
                 .collect(Collectors.toList());
@@ -223,8 +227,8 @@ public class EventService {
 
     private List<EventEntity> getRepeatedEventsInTimeRange(Date startRange, Date endRange, List<EventEntity> reoccurringEvents) {
         LinkedList<EventEntity> events = new LinkedList<>();
-        while(!events.isEmpty()){
-            EventEntity reoccurringEvent = events.pop();
+        while(!reoccurringEvents.isEmpty()){
+            EventEntity reoccurringEvent = reoccurringEvents.remove(0);
             Calendar actualStartDateInInterval = new GregorianCalendar();
             actualStartDateInInterval.setTime(reoccurringEvent.getStartEventDate());
             Calendar actualEndDateInInterval = new GregorianCalendar();
@@ -234,9 +238,9 @@ public class EventService {
             if(reoccurringEvent.getStartEventDate().compareTo(startRange) < 0){
                 actualStartDateInInterval = getActualStartDateInRange(reoccurringEvent.getStartEventDate(), reoccurringEvent.getEventFreq(), startRange);
             }
-            int incrementField = reoccurringEvent.getEventFreq().getType().equals(EventFreq.DAILY) ?
+            int incrementField = reoccurringEvent.getEventFreq().equals(EventFreq.DAILY) ?
                     Calendar.DAY_OF_MONTH : Calendar.WEEK_OF_MONTH;
-            for(Calendar currentDate = (Calendar) actualEndDateInInterval.clone();
+            for(Calendar currentDate = (Calendar) actualStartDateInInterval.clone();
                 currentDate.compareTo(actualEndDateInInterval) < 0;
                 currentDate.add(incrementField, 1)){
                 EventEntity clone = reoccurringEvent.clone();

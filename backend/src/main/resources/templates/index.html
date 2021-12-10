@@ -39,26 +39,48 @@
                     </div>
                 </div>
             </div>
-        </section>
-        <div class="events-container"></div>
-    </div>
-    <script>
-        let eventsOfMonth = new Map();
-        let currentYear;
-        let currentMonth;
-        async function displayEventsAt(year, month, day) {
-            if (year !== currentYear || month !== currentMonth) {
-                await loadEvents(year, month)
-            }
-            const eventsContainer = document.querySelector('.events-container')
-            eventsContainer.innerHTML = ""
-            const events = eventsOfMonth.get(day)
-            if (events !== undefined) {
-                events.sort((a, b) => {
-                    return parseInt(a.time.getTime()) - parseInt(b.time.getTime())
-                })
-                events.forEach(event => {
-                    eventsContainer.append(displayEvent(event))
+        </div>
+    </section>
+    <div class="events-container"></div>
+</div>
+<script>
+    let eventsOfMonth = new Map();
+    let currentYear;
+    let currentMonth;
+    async function displayEventsAt(year, month, day){
+        if(year !== currentYear || month !== currentMonth){
+            await loadEvents(year, month)
+        }
+        const eventsContainer = document.querySelector('.events-container')
+        eventsContainer.innerHTML=""
+        const events = eventsOfMonth.get(day)
+        if(events !== undefined){
+            events.sort((a, b)=>{
+                return parseInt(a.time.getTime()) - parseInt(b.time.getTime())
+            })
+            events.forEach(event => {
+                eventsContainer.append(displayEvent(event))
+            })
+        }
+
+    }
+    async function loadEvents(year, month){
+        const eventsContainer = document.querySelector('.events-container')
+        eventsContainer.innerHTML=""
+        fetch('/api/events/by-month/'+year+'/'+month)
+        .then(res => res.json())
+        .then(r => {
+            currentMonth = month
+            currentYear = year
+            eventsOfMonth.clear()
+            r.data.forEach(event => {
+                let datetime = new Date(event.nextEventDate)
+                let updatedList = eventsOfMonth.get(datetime.getDate())
+                if(updatedList == null) updatedList = []
+                updatedList.push({
+                    name : event.eventName,
+                    description : event.eventDescription,
+                    time : datetime
                 })
             }
 
