@@ -12,6 +12,7 @@ body {
     display: flex;
     justify-content: center;
     height: 40vh;
+    flex-direction: column;
 }
 
 .title{
@@ -46,7 +47,3 @@ body {
     background-color: #06b;
 }
 
-.tag-container{
-    display: flex;
-    justify-content: center;
-}
